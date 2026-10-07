@@ -4,11 +4,15 @@
 'use strict';
 
 /* ============================================================================
-   SITE CONFIG — the two values to change when the checkout is connected.
+   SITE CONFIG lives in config.js, which index.html loads BEFORE this file.
+   Fill CHECKOUT_URL there to turn the buy button live, and put the code a
+   buyer is given into UNLOCK_CODE. Read them here with safe fallbacks, so a
+   missing config.js degrades to the honest empty state instead of throwing.
    ============================================================================ */
-var CHECKOUT_URL = "";   // paste the checkout link (LemonSqueezy / Gumroad) here
-var UNLOCK_CODE  = "";   // the code a buyer receives; leave "" until checkout exists
 var FREE_LIMIT   = 5;    // receipts per PDF on the free tier
+var checkoutUrl = (typeof CHECKOUT_URL === 'string') ? CHECKOUT_URL.trim() : '';
+var unlockCode  = (typeof UNLOCK_CODE  === 'string') ? UNLOCK_CODE.trim()  : '';
+var priceUsd    = (typeof PRICE_USD === 'number' && isFinite(PRICE_USD)) ? PRICE_USD : 9;
 /* ========================================================================== */
 
 var LS_KEY = 'receiptstack.unlocked';
@@ -317,10 +321,10 @@ function buildPdf(items, opts) {
 
 var $ = function (id) { return document.getElementById(id); };
 
-var state = { items: [], unlocked: false, nextId: 1 };
+var state = { items: [], unlocked: false, nextId: 1, reading: 0, building: false };
 
 try { state.unlocked = localStorage.getItem(LS_KEY) === '1'; } catch (e) {}
-if (!UNLOCK_CODE) state.unlocked = false;
+if (!unlockCode) state.unlocked = false;
 
 var SAMPLES = [
   { file: 'IMG_20260214_093012.jpg',    note: 'Northside Coffee Co.',    amount: '18.75' },
@@ -336,6 +340,55 @@ function setStatus(msg, isErr) {
   var el = $('status');
   el.textContent = msg || '';
   el.className = 'status' + (isErr ? ' err' : '');
+}
+
+/* The Build button stays inert until every photo in the current drop has
+   finished decoding, so no count is ever taken from a half-read list. */
+function updateControls() {
+  var busy = state.reading > 0 || state.building;
+  var b = $('buildBtn'), s = $('sampleBtn');
+  if (b) b.disabled = busy;
+  if (s) s.disabled = state.reading > 0;
+}
+function beginRead() {
+  state.reading++;
+  $('result').hidden = true;   // a stale result can never sit next to a changing list
+  updateControls();
+}
+function endRead() {
+  state.reading = Math.max(0, state.reading - 1);
+  updateControls();
+}
+
+/* The checkout slot: empty URL -> an honest disabled button; a URL -> a real
+   buy link. Same shape as DELTA's config.js / buy-slot pair. */
+function renderBuy() {
+  var slot = $('buySlot'), note = $('buyNote');
+  if (!slot) return;
+  slot.textContent = '';
+  if (state.unlocked) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'primary'; b.disabled = true;
+    b.textContent = 'Unlocked on this browser';
+    slot.appendChild(b);
+    if (note) note.textContent = 'The receipt limit and the footer mark are off. This is stored in this browser only.';
+  } else if (checkoutUrl) {
+    var a = document.createElement('a');
+    a.className = 'primary';
+    a.href = checkoutUrl;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = 'Unlock \u2014 $' + priceUsd + ' once';
+    slot.appendChild(a);
+    if (note) note.textContent = 'One payment, no subscription. The code arrives on the checkout page.';
+  } else {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'primary'; btn.disabled = true;
+    btn.textContent = "Checkout isn't connected yet";
+    slot.appendChild(btn);
+    if (note) note.textContent = 'Nothing is for sale on this page right now. The free version works fully for up to ' +
+      FREE_LIMIT + ' receipts. When checkout is connected, a code arrives with your purchase and goes in the box below.';
+  }
 }
 
 function capInfo() {
@@ -488,6 +541,7 @@ function addImage(img, name, preset) {
 function addFiles(files) {
   var list = Array.prototype.slice.call(files || []);
   if (!list.length) return;
+  beginRead();
   setStatus('Reading ' + list.length + (list.length === 1 ? ' photo' : ' photos') + '\u2026');
   var bad = [];
   return list.reduce(function (chain, f) {
@@ -505,8 +559,7 @@ function addFiles(files) {
   }, Promise.resolve()).then(function () {
     renderList();
     setStatus(bad.length ? 'Skipped: ' + bad.join(', ') : '', bad.length > 0);
-    $('result').hidden = true;
-  });
+  }).then(endRead, endRead);
 }
 
 function rotate(idx) {
@@ -519,6 +572,8 @@ function rotate(idx) {
 }
 
 function loadSamples() {
+  if (state.reading > 0 || state.building) return;   // one read at a time
+  beginRead();
   setStatus('Loading the 7 sample receipts\u2026');
   var base = 'samples/receipts/';
   return SAMPLES.reduce(function (chain, s) {
@@ -529,19 +584,22 @@ function loadSamples() {
         setStatus('Could not load the samples: ' + e.message + ' (open the page over http://, not file://)', true);
       });
     });
-  }, Promise.resolve()).then(function () { renderList(); setStatus(''); });
+  }, Promise.resolve()).then(function () { renderList(); setStatus(''); }).then(endRead, endRead);
 }
 
 var lastPdfBlob = null, lastPdfUrl = null;
 
 function build() {
-  var items = state.items.slice();
+  if (state.reading > 0 || state.building) return;    // never build from a half-read list
+  var items = state.items.slice();                     // ONE snapshot for every limit number
   if (!items.length) { setStatus('Add at least one receipt photo first.', true); return; }
   var info = capInfo();
   var included = items.slice(0, info.shown);
-  var missing = items.length - included.length;
+  var totalItems = items.length;
+  var missing = totalItems - included.length;
 
-  $('buildBtn').disabled = true;
+  state.building = true;
+  updateControls();
   setStatus('Building ' + included.length + ' pages\u2026');
 
   var t0 = performance.now();
@@ -572,7 +630,7 @@ function build() {
       var p2 = document.createElement('p');
       p2.innerHTML = '<b>' + missing + '</b> receipt' + (missing === 1 ? '' : 's') +
         ' left out by the free limit. <a href="#price">Unlock</a> to include ' +
-        (state.items.length) + '.';
+        totalItems + '.';
       res.appendChild(p2);
     }
 
@@ -584,10 +642,12 @@ function build() {
     res.appendChild(a);
     res.hidden = false;
     setStatus('Nothing was uploaded. The PDF was made in this tab.');
-    $('buildBtn').disabled = false;
+    state.building = false;
+    updateControls();
   }).catch(function (e) {
     setStatus('The PDF could not be built: ' + e.message, true);
-    $('buildBtn').disabled = false;
+    state.building = false;
+    updateControls();
   });
 }
 
@@ -618,34 +678,23 @@ function init() {
   $('sampleBtn').addEventListener('click', loadSamples);
   $('buildBtn').addEventListener('click', build);
 
-  // checkout state
-  var buy = $('buyBtn');
-  if (state.unlocked) {
-    buy.textContent = 'Unlocked on this browser';
-    buy.disabled = true;
-    $('buyNote').textContent = 'The receipt limit and the footer mark are off. This is stored in this browser only.';
-  } else if (CHECKOUT_URL) {
-    buy.disabled = false;
-    buy.textContent = 'Unlock \u2014 $9 once';
-    buy.addEventListener('click', function () { window.open(CHECKOUT_URL, '_blank', 'noopener'); });
-    $('buyNote').textContent = 'One payment, no subscription. The code arrives on the checkout page.';
-  } else {
-    buy.disabled = true;
-    buy.textContent = "Checkout isn't connected yet";
-  }
+  // price + checkout slot. Empty config -> honest disabled button; a filled
+  // CHECKOUT_URL -> a real buy link. The DELTA pattern, in this project.
+  var priceEls = document.querySelectorAll('[data-price]');
+  for (var pi = 0; pi < priceEls.length; pi++) priceEls[pi].textContent = String(priceUsd);
+  renderBuy();
 
-  if (UNLOCK_CODE) {
+  if (unlockCode) {
     $('unlockRow').hidden = false;
     $('codeBtn').addEventListener('click', function () {
       var msg = $('codeMsg'), v = $('codeInput').value.trim();
-      if (v && v.toUpperCase() === UNLOCK_CODE.toUpperCase()) {
+      if (v && v.toUpperCase() === unlockCode.toUpperCase()) {
         state.unlocked = true;
         try { localStorage.setItem(LS_KEY, '1'); } catch (e) {}
         msg.className = 'good';
         msg.textContent = 'Unlocked. Add as many receipts as you like.';
         renderList();
-        $('buyBtn').disabled = true;
-        $('buyBtn').textContent = 'Unlocked on this browser';
+        renderBuy();
       } else {
         msg.className = 'bad';
         msg.textContent = 'That code was not recognised.';
@@ -653,6 +702,7 @@ function init() {
     });
   }
 
+  updateControls();
   renderCap();
 }
 

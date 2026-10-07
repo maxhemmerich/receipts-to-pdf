@@ -251,6 +251,18 @@ button.primary, .buybar button {
 button.primary:hover:not(:disabled) { background: var(--stamp); border-color: var(--stamp); }
 button.primary:disabled { background: var(--line); border-color: var(--line-2); color: var(--muted); cursor: not-allowed; }
 
+/* the live buy link, once CHECKOUT_URL is filled in config.js */
+.buybar a.primary {
+  display: inline-block;
+  font: 600 14px/1 var(--sans);
+  padding: 11px 18px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--card);
+  text-decoration: none;
+}
+.buybar a.primary:hover { background: var(--stamp); border-color: var(--stamp); color: #fff; }
+
 .limitline { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
 
 .status { margin: 12px 0 0; font-size: 13.5px; color: var(--muted); min-height: 1.2em; }

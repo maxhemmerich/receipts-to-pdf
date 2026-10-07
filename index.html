@@ -126,7 +126,7 @@
       </div>
       <div class="plan">
         <h3>Unlocked</h3>
-        <p class="amount">$9 once</p>
+        <p class="amount">$<span data-price>9</span> once</p>
         <ul>
           <li>No receipt limit</li>
           <li>Footer mark removed</li>
@@ -136,7 +136,7 @@
     </div>
 
     <div class="buybar" id="buybar">
-      <button type="button" class="primary" id="buyBtn" disabled>Checkout isn't connected yet</button>
+      <div class="buy-slot" id="buySlot"><button type="button" class="primary" disabled>Checkout isn't connected yet</button></div>
       <p class="dim" id="buyNote">Nothing is for sale on this page right now. The free version works fully for up to 5 receipts. When checkout is connected, a code arrives with your purchase and goes in the box below.</p>
       <div class="unlockrow" id="unlockRow" hidden>
         <input type="text" id="codeInput" placeholder="Unlock code" maxlength="40">
@@ -154,6 +154,7 @@
 </main>
 
 <script src="assets/vendor/pdf-lib.min.js"></script>
+<script src="config.js"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>
