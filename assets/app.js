@@ -264,8 +264,16 @@ function buildPdf(items, opts) {
     }
     y -= 4;
     line(y + 12, INK, 1);
-    at('Total of ' + amts.filter(function (a) { return a !== null; }).length + ' amounts', cNote, y, bold, 10);
-    atRight(money(total), cAmt, y, bold, 11);
+    var entered = amts.filter(function (a) { return a !== null; }).length;
+    var label = entered === 0 ? 'Total'
+      : entered === amts.length ? 'Total of ' + entered + (entered === 1 ? ' amount' : ' amounts')
+      : 'Total of ' + entered + ' of ' + amts.length + ' amounts';
+    at(label, cNote, y, bold, 10);
+    if (entered === 0) {
+      atRight('no amounts entered', cAmt, y, font, 9.5, GREY);
+    } else {
+      atRight(money(total), cAmt, y, bold, 11);
+    }
 
     at('Every receipt is on its own page after this one, in the order listed.', M, M + FOOT + 8, font, 8.5, GREY);
 
