@@ -1,0 +1,51 @@
+[
+  {
+    "file": "IMG_20260214_093012.jpg",
+    "merchant": "NORTHSIDE COFFEE CO.",
+    "date": "2026-02-14",
+    "total": 18.75,
+    "tax": 5.0
+  },
+  {
+    "file": "IMG_20260218_181244.jpg",
+    "merchant": "HARBOUR HARDWARE",
+    "date": "2026-02-18",
+    "total": 142.3,
+    "tax": 0.0
+  },
+  {
+    "file": "2026-03-02_fuel.jpg",
+    "merchant": "KINGSWAY FUEL STOP",
+    "date": "2026-03-02",
+    "total": 78.4,
+    "tax": 0.0
+  },
+  {
+    "file": "Scan_20260305-1420.jpg",
+    "merchant": "MERIDIAN OFFICE SUPPLY",
+    "date": "2026-03-05",
+    "total": 64.99,
+    "tax": 5.0
+  },
+  {
+    "file": "IMG_20260311_120501.jpg",
+    "merchant": "BLUE ANCHOR CAFE",
+    "date": "2026-03-11",
+    "total": 26.5,
+    "tax": 0.0
+  },
+  {
+    "file": "receipt-novaprint-mar14.jpg",
+    "merchant": "NOVAPRINT DIGITAL",
+    "date": "2026-03-14",
+    "total": 310.0,
+    "tax": 5.0
+  },
+  {
+    "file": "IMG_20260320_081500.jpg",
+    "merchant": "KINGSWAY FUEL STOP",
+    "date": "2026-03-20",
+    "total": 71.2,
+    "tax": 0.0
+  }
+]
