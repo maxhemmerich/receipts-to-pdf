@@ -31,6 +31,51 @@ function bytesHuman(b) {
   return (b / 1048576).toFixed(1) + ' MB';
 }
 
+/* ------------------------------------------------------------- the unlock
+   CHECKOUT_URL, UNLOCK_CODE and PRICE_USD come from config.js, which is
+   public. UNLOCK_CODE therefore holds a DIGEST of the buyer's code, never the
+   code itself: publishing the code would make the unlock free for everyone.
+
+   The page derives PBKDF2-HMAC-SHA256(code, UNLOCK_SALT, UNLOCK_ITER, 32 bytes)
+   and compares it with UNLOCK_CODE. Nothing leaves the browser — this works
+   under connect-src 'none' — so the privacy promise on the page stays literal.
+
+   Two rules the digest depends on, both stated in PAYMENT.md:
+     - the code must be high entropy (>= 20 random characters). A short or
+       guessable code does not matter to the page, but the digest is public, so
+       a weak code is brute-forced offline and the unlock becomes free.
+     - UNLOCK_SALT and UNLOCK_ITER are part of the contract. Changing either
+       invalidates every code already issued.
+   Mint a code with tools/mint-unlock-code.py; it prints the code and the digest. */
+var UNLOCK_SALT = 'receiptstack.unlock.v1';
+var UNLOCK_ITER = 210000;
+
+function digestHex(code) {
+  var subtle = (window.crypto && window.crypto.subtle) || null;
+  if (!subtle) return Promise.reject(new Error('no WebCrypto'));
+  var enc = new TextEncoder();
+  var normalized = String(code).replace(/[\s-]+/g, '').toUpperCase();
+  return subtle.importKey('raw', enc.encode(normalized), 'PBKDF2', false, ['deriveBits'])
+    .then(function (key) {
+      return subtle.deriveBits(
+        { name: 'PBKDF2', salt: enc.encode(UNLOCK_SALT), iterations: UNLOCK_ITER, hash: 'SHA-256' },
+        key, 256);
+    })
+    .then(function (bits) {
+      var b = new Uint8Array(bits), s = '', i;
+      for (i = 0; i < b.length; i++) s += (b[i] < 16 ? '0' : '') + b[i].toString(16);
+      return s;
+    });
+}
+
+/* Length-checked, no early exit on the first differing character. */
+function sameHex(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false;
+  var diff = 0, i;
+  for (i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
 function slug(s) {
   return String(s || 'receipts').toLowerCase()
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'receipts';
@@ -686,19 +731,29 @@ function init() {
 
   if (unlockCode) {
     $('unlockRow').hidden = false;
+    var wantDigest = String(unlockCode).trim().toLowerCase();
     $('codeBtn').addEventListener('click', function () {
-      var msg = $('codeMsg'), v = $('codeInput').value.trim();
-      if (v && v.toUpperCase() === unlockCode.toUpperCase()) {
-        state.unlocked = true;
-        try { localStorage.setItem(LS_KEY, '1'); } catch (e) {}
-        msg.className = 'good';
-        msg.textContent = 'Unlocked. Add as many receipts as you like.';
-        renderList();
-        renderBuy();
-      } else {
+      var msg = $('codeMsg'), btn = $('codeBtn'), v = $('codeInput').value.trim();
+      if (!v) return;
+      btn.disabled = true;
+      msg.className = '';
+      msg.textContent = 'Checking\u2026';
+      digestHex(v).then(function (hex) {
+        if (sameHex(hex, wantDigest)) {
+          state.unlocked = true;
+          try { localStorage.setItem(LS_KEY, '1'); } catch (e) {}
+          msg.className = 'good';
+          msg.textContent = 'Unlocked. Add as many receipts as you like.';
+          renderList();
+          renderBuy();
+        } else {
+          msg.className = 'bad';
+          msg.textContent = 'That code was not recognised.';
+        }
+      }, function () {
         msg.className = 'bad';
-        msg.textContent = 'That code was not recognised.';
-      }
+        msg.textContent = 'This browser cannot check a code. Open the page over https and try again.';
+      }).then(function () { btn.disabled = false; });
     });
   }
 
