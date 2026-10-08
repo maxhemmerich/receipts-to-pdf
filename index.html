@@ -23,6 +23,82 @@
 <meta name="twitter:image" content="https://maxhemmerich.github.io/receipts-to-pdf/assets/og-card.png">
 <meta name="theme-color" content="#f4f1e9">
 <link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://maxhemmerich.github.io/receipts-to-pdf/#app",
+      "name": "ReceiptStack",
+      "url": "https://maxhemmerich.github.io/receipts-to-pdf/",
+      "description": "Turns photos of paper receipts into one dated, indexed PDF: a cover index in date order with a total, then one receipt per page. Runs entirely in the browser — no upload, no account, no server.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any device with a modern web browser",
+      "featureList": [
+        "One receipt per page, nothing cropped",
+        "Cover index in date order with a total for the whole batch",
+        "Dates read from the filename when they are in there",
+        "Your photos never leave your browser"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://maxhemmerich.github.io/receipts-to-pdf/index.html#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Do my receipt photos get uploaded anywhere?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "There is no upload. There is no server that could receive your files."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need an account or anything installed?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No install, no account."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What ends up in the PDF?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Every receipt listed in date order with its amount, then a total for the whole batch."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does a receipt get its date?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Dates read from the filename when they are in there"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which image formats can I drop in?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "JPG, PNG, WebP, GIF"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Will a whole year still be small enough to email?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Photos are resized to 2200 pixels on the long edge, so a stack of receipts stays a few megabytes."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
 

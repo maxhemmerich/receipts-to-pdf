@@ -44,8 +44,9 @@ def rule():
 
 
 story = [
-    Paragraph("ReceiptStack &mdash; how to use it", title),
-    Paragraph("Receipt photos in, one dated indexed PDF out. Everything runs in your own browser.", sub),
+    Paragraph("Combine receipt photos into one PDF", title),
+    Paragraph("ReceiptStack &mdash; receipt photos in, one dated indexed PDF out. Everything runs in "
+              "your own browser.", sub),
     rule(),
     Paragraph("The seven steps", h2),
     numbered([
@@ -89,7 +90,7 @@ story = [
 doc = SimpleDocTemplate(OUT, pagesize=letter,
                         leftMargin=0.75 * inch, rightMargin=0.75 * inch,
                         topMargin=0.62 * inch, bottomMargin=0.55 * inch,
-                        title="ReceiptStack - how to use it",
-                        author="ReceiptStack", subject="How to use ReceiptStack")
+                        title="Combine receipt photos into one PDF - ReceiptStack",
+                        author="ReceiptStack", subject="Combine receipt photos into one PDF")
 doc.build(story)
 print("wrote", os.path.abspath(OUT), os.path.getsize(OUT), "bytes")

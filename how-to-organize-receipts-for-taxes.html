@@ -22,6 +22,66 @@
 <meta name="twitter:description" content="Photograph each receipt, date the file, and keep one dated, indexed PDF per tax year. No upload, no account.">
 <meta name="twitter:image" content="https://maxhemmerich.github.io/receipts-to-pdf/assets/og-card.png">
 <link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://maxhemmerich.github.io/receipts-to-pdf/#app",
+      "name": "ReceiptStack",
+      "url": "https://maxhemmerich.github.io/receipts-to-pdf/",
+      "description": "Turns photos of paper receipts into one dated, indexed PDF: a cover index in date order with a total, then one receipt per page. Runs entirely in the browser — no upload, no account, no server.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any device with a modern web browser",
+      "featureList": [
+        "One receipt per page, nothing cropped",
+        "Cover index in date order with a total for the whole batch",
+        "Dates read from the filename when they are in there",
+        "Your photos never leave your browser"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://maxhemmerich.github.io/receipts-to-pdf/how-to-organize-receipts-for-taxes.html#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Do I need an app that connects to my bank?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Nothing here connects anywhere — not to a bank, not to a server. You photograph the receipts you have and the file is built in your own browser."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I do a whole year in one PDF?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. On the unlocked tier there is no limit. On the free tier the PDF is built from the first 5 receipts in the list, and the result tells you how many were left out."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I use receipts I already have as PDFs?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "This tool takes photos and image files (JPG, PNG, WebP, GIF), not PDFs. If a receipt is already a PDF, you would turn its page into an image first, then add it like any other."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Where does the file end up?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "In your browser's downloads, on your own machine. Nothing about the batch is uploaded or stored anywhere — the file is assembled by the JavaScript in the tab."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
