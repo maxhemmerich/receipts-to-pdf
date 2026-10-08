@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<title>Combine receipt photos into one PDF — free, no upload | ReceiptStack</title>
+<meta name="description" content="How to combine receipt photos into one PDF for a tax filing, an expense claim or a reimbursement: drop the photos in, check the dates, download one indexed PDF with a total. Runs in your browser — no upload, no account, free for up to 5 receipts.">
+<link rel="canonical" href="https://maxhemmerich.github.io/receipts-to-pdf/combine-receipt-photos-into-one-pdf.html">
+<meta name="theme-color" content="#f4f1e9">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ReceiptStack">
+<meta property="og:title" content="Combine receipt photos into one PDF">
+<meta property="og:description" content="Drop the photos in, check the dates, download one indexed PDF with a total. In your browser: no upload, no account, free for up to 5 receipts.">
+<meta property="og:url" content="https://maxhemmerich.github.io/receipts-to-pdf/combine-receipt-photos-into-one-pdf.html">
+<meta property="og:image" content="https://maxhemmerich.github.io/receipts-to-pdf/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The ReceiptStack index page: seven receipts listed with dates and amounts, total $712.14">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Combine receipt photos into one PDF">
+<meta name="twitter:description" content="Drop the photos in, check the dates, download one indexed PDF with a total. No upload, no account.">
+<meta name="twitter:image" content="https://maxhemmerich.github.io/receipts-to-pdf/assets/og-card.png">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="bar">
+  <span class="brand">ReceiptStack</span>
+  <nav>
+    <a href="./">The tool</a>
+    <a href="./#sample">Sample output</a>
+    <a href="./#privacy">Privacy</a>
+  </nav>
+</header>
+
+<main>
+
+  <p class="eyebrow">Guide</p>
+  <h1>Combine receipt photos into one PDF</h1>
+  <p class="lede">If you have a phone full of paper-receipt photos and one filing, claim or
+  reimbursement to send, this turns them into a single PDF: one receipt per page, in date order,
+  under a cover page that lists them and adds them up. It happens in the browser tab you already
+  have open.</p>
+  <p><a href="./#tool">Open the tool</a> &middot; <a href="downloads/receipts-sample.pdf">see a real
+  output first</a></p>
+
+  <section class="block">
+    <h2>What is in the PDF</h2>
+    <dl class="facts">
+      <dt>Cover index</dt>
+      <dd>Every receipt in date order with its date, note and amount, then a total for the batch.
+      On a long batch the index continues on a second page.</dd>
+      <dt>One receipt per page</dt>
+      <dd>The photo is fitted to the page and centred. Nothing is cropped or cut off.</dd>
+      <dt>A footer on every page</dt>
+      <dd>Which receipt it is (4 of 9), its date and its amount &mdash; so pages survive being
+      printed and shuffled on a desk.</dd>
+      <dt>A file you can email</dt>
+      <dd>Photos are resized to 2200 pixels on the long edge, so a stack of receipts stays a few
+      megabytes instead of forty.</dd>
+    </dl>
+  </section>
+
+  <section class="block">
+    <h2>Doing it, step by step</h2>
+    <dl class="facts">
+      <dt>1. Put the photos in</dt>
+      <dd>Drop them on the page, or click <i>choose files</i>. JPG, PNG, WebP and GIF. A file that
+      is not a photo, or a photo this browser cannot read, is listed in a <i>Skipped:</i> line by
+      name and the rest of the batch still builds.</dd>
+      <dt>2. Check the list</dt>
+      <dd>Each photo gets a row: a note field, a date, an amount. Where the date came out of the
+      filename the row says so; where it could not, the date is left for you to type. Move a row
+      with the arrows, rotate a sideways photo with the &#8635; button, remove a mistake with the
+      &#215;.</dd>
+      <dt>3. Build it</dt>
+      <dd>Give the PDF a title if you want one (&ldquo;Client expenses, March&rdquo;), pick Letter
+      or A4, and press <i>Build the PDF</i>. The download link appears with the result: how many
+      receipts, how many pages, how big, and how long it took.</dd>
+    </dl>
+  </section>
+
+  <section class="block">
+    <h2>Where the dates come from</h2>
+    <p>From the filename, because that is usually the only place a date exists once a receipt is a
+    photo. These all give their date up:</p>
+    <dl class="facts">
+      <dt>IMG_20260305_1420.jpg</dt><dd>reads as 2026-03-05</dd>
+      <dt>2026-03-05_receipt.jpg</dt><dd>reads as 2026-03-05</dd>
+      <dt>Scan_20260503-1420.png</dt><dd>reads as 2026-05-03</dd>
+      <dt>5 Mar 2026 lunch.jpg</dt><dd>reads as 2026-03-05</dd>
+    </dl>
+    <p>Anything genuinely ambiguous &mdash; <span class="dim">receipt_03-04-2026.jpg</span> could be
+    4 March or 3 April &mdash; is left blank rather than guessed, and you type it in the row. The
+    date is what orders the batch: photos are put in date order as they load, so dropping a pile in
+    any order still gives you a PDF that reads oldest to newest. You can still move a row by hand
+    afterwards.</p>
+  </section>
+
+  <section class="block">
+    <h2>What it costs</h2>
+    <p>Free for a PDF of up to <b>5 receipts</b>: the cover index, the totals and the download are
+    all included, with no account and no email. A one-time <b>$9</b> unlock removes the 5-receipt
+    limit and the small footer mark on each page. No subscription, no upsell.</p>
+    <p class="dim">The tool page states plainly whether checkout is connected yet. While it is not,
+    nothing on this site can take money, and the free version works fully.</p>
+  </section>
+
+  <section class="block">
+    <h2>Why nothing gets uploaded</h2>
+    <p>Receipts carry your card number, your address and what you buy. There is no server here to
+    send them to &mdash; no backend, no API key, no analytics. The tool page carries a
+    content-security policy whose <span class="dim">connect-src 'none'</span> directive blocks
+    every network request, so it could not upload your photos even if a bug tried to. The PDF is
+    assembled by the JavaScript already running in the tab. The full source is on
+    <a href="https://github.com/maxhemmerich/receipts-to-pdf">GitHub</a>.</p>
+  </section>
+
+  <section class="block">
+    <h2>Questions</h2>
+    <dl class="facts">
+      <dt>Can I use photos from my phone?</dt>
+      <dd>That is the usual input. A photo taken at an angle is fine; the receipt is not cropped, so
+      a bit of table around it does no harm.</dd>
+      <dt>My receipt is upside down or sideways</dt>
+      <dd>Use the &#8635; button on its row before you build. It turns the photo 90 degrees each
+      press and the PDF picks up the turned version.</dd>
+      <dt>Can I do a whole year in one PDF?</dt>
+      <dd>Yes, on the unlocked tier there is no limit. On the free tier the PDF is built from the
+      first 5 receipts in the list, and the result tells you how many were left out.</dd>
+      <dt>Do the receipts have to be in order before I start?</dt>
+      <dd>No. A batch is sorted by the date each receipt carries before the PDF is built.</dd>
+      <dt>What does it do about tax?</dt>
+      <dd>Nothing. It builds one ordered PDF with a total. What you claim, and whether you can
+      claim it, is your call and your accountant&rsquo;s.</dd>
+    </dl>
+  </section>
+
+  <footer class="foot">
+    <p><a href="./">ReceiptStack</a> &mdash; one page, no backend. <a href="https://github.com/maxhemmerich/receipts-to-pdf">Source</a>.</p>
+    <p class="dim">Not tax advice. This tool puts your receipts in one file; what you claim is your call and your accountant&rsquo;s.</p>
+  </footer>
+
+</main>
+
+</body>
+</html>

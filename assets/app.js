@@ -583,6 +583,23 @@ function thumbFor(img) {
   return c.toDataURL('image/jpeg', 0.6);
 }
 
+/* A drop is one batch. The page promises the PDF "in date order", and the file
+   picker hands its files over in whatever order the dialog shows them, so the
+   batch is put in date order here, oldest first, instead of in drop order.
+   Anything with no date keeps its relative order and sits after the dated
+   ones. This runs on a batch add only: a date typed in by hand or a row moved
+   with the arrows is never re-sorted out from under you. */
+function sortByDate() {
+  var wrapped = state.items.map(function (it, i) { return { it: it, i: i }; });
+  wrapped.sort(function (a, b) {
+    var na = a.it.date ? 0 : 1, nb = b.it.date ? 0 : 1;
+    if (na !== nb) return na - nb;                       // dated first, undated last
+    if (na === 0 && a.it.date !== b.it.date) return a.it.date < b.it.date ? -1 : 1;
+    return a.i - b.i;                                    // stable within a group
+  });
+  state.items = wrapped.map(function (w) { return w.it; });
+}
+
 /* Adds one already-decoded image. Used by both the file picker and the loader. */
 function addImage(img, name, preset) {
   preset = preset || {};
@@ -626,6 +643,7 @@ function addFiles(files) {
       });
     });
   }, Promise.resolve()).then(function () {
+    sortByDate();
     renderList();
     setStatus(bad.length ? 'Skipped: ' + bad.join(', ') : '', bad.length > 0);
   }).then(endRead, endRead);
@@ -653,7 +671,7 @@ function loadSamples() {
         setStatus('Could not load the samples: ' + e.message + ' (open the page over http://, not file://)', true);
       });
     });
-  }, Promise.resolve()).then(function () { renderList(); setStatus(''); }).then(endRead, endRead);
+  }, Promise.resolve()).then(function () { sortByDate(); renderList(); setStatus(''); }).then(endRead, endRead);
 }
 
 var lastPdfBlob = null, lastPdfUrl = null;
@@ -791,6 +809,7 @@ function init() {
 window.RS = {
   buildPdf: buildPdf, parseDateFromName: parseDateFromName, normalizeImage: normalizeImage,
   clean: clean, state: state, addFiles: addFiles, loadSamples: loadSamples, build: build,
+  sortByDate: sortByDate,
   get lastBlob() { return lastPdfBlob; }
 };
 
