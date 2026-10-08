@@ -405,11 +405,19 @@ function endRead() {
   updateControls();
 }
 
-/* The checkout slot: empty URL -> an honest disabled button; a URL -> a real
-   buy link. Same shape as DELTA's config.js / buy-slot pair. */
+/* The checkout slot. It is ATOMIC: a live buy link is rendered only when BOTH a
+   checkout URL and a digest are present, so the page can never take money for an
+   unlock it cannot deliver. If one half is set and the other is missing, the
+   control stays the honest disabled button and the note names the missing half.
+   The code box is visible exactly when a digest exists — which is exactly when a
+   code could work — so a live buy link always ships with its code box. (Both
+   halves can be pasted in one step, but the page no longer depends on that: a
+   half-wired checkout reads "not ready", never a $9 link with no box.) */
 function renderBuy() {
-  var slot = $('buySlot'), note = $('buyNote');
+  var slot = $('buySlot'), note = $('buyNote'), row = $('unlockRow');
   if (!slot) return;
+  var haveUrl  = !!checkoutUrl;
+  var haveCode = !!unlockCode;   // holds the digest, never the code itself
   slot.textContent = '';
   if (state.unlocked) {
     var b = document.createElement('button');
@@ -417,7 +425,7 @@ function renderBuy() {
     b.textContent = 'Unlocked on this browser';
     slot.appendChild(b);
     if (note) note.textContent = 'The receipt limit and the footer mark are off. This is stored in this browser only.';
-  } else if (checkoutUrl) {
+  } else if (haveUrl && haveCode) {
     var a = document.createElement('a');
     a.className = 'primary';
     a.href = checkoutUrl;
@@ -429,11 +437,27 @@ function renderBuy() {
   } else {
     var btn = document.createElement('button');
     btn.type = 'button'; btn.className = 'primary'; btn.disabled = true;
-    btn.textContent = "Checkout isn't connected yet";
+    if (haveUrl && !haveCode) {
+      // checkout wired, but no code has been issued: a purchase would take the
+      // money and hand the buyer nothing to unlock with.
+      btn.textContent = "Unlock code isn't set up yet";
+      if (note) note.textContent = 'The checkout is connected, but no unlock code exists yet, so a purchase right ' +
+        'now would take your money and give you nothing to unlock with. Nothing is for sale on this page until ' +
+        'that is fixed. The free version works fully for up to ' + FREE_LIMIT + ' receipts.';
+    } else if (!haveUrl && haveCode) {
+      // the unlock is ready but there is nowhere to buy it.
+      btn.textContent = "Checkout isn't connected yet";
+      if (note) note.textContent = 'An unlock code is ready, but there is no checkout connected yet, so there is ' +
+        'nothing to buy. The free version works fully for up to ' + FREE_LIMIT + ' receipts.';
+    } else {
+      btn.textContent = "Checkout isn't connected yet";
+      if (note) note.textContent = 'Nothing is for sale on this page right now. The free version works fully for ' +
+        'up to ' + FREE_LIMIT + ' receipts. When checkout is connected, a code arrives with your purchase and goes ' +
+        'in the box below.';
+    }
     slot.appendChild(btn);
-    if (note) note.textContent = 'Nothing is for sale on this page right now. The free version works fully for up to ' +
-      FREE_LIMIT + ' receipts. When checkout is connected, a code arrives with your purchase and goes in the box below.';
   }
+  if (row) row.hidden = !haveCode;   // the code box exists iff a digest exists
 }
 
 function capInfo() {
@@ -730,7 +754,9 @@ function init() {
   renderBuy();
 
   if (unlockCode) {
-    $('unlockRow').hidden = false;
+    // The code row's visibility is set by renderBuy() just above: it is shown
+    // exactly when a digest exists, so it can never go missing beside a live
+    // buy link. Only the check handler is wired here.
     var wantDigest = String(unlockCode).trim().toLowerCase();
     $('codeBtn').addEventListener('click', function () {
       var msg = $('codeMsg'), btn = $('codeBtn'), v = $('codeInput').value.trim();
