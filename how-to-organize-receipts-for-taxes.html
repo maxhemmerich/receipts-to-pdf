@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<title>How to organize receipts for taxes — one dated PDF per year | ReceiptStack</title>
+<meta name="description" content="A filing system for receipts, not tax advice: photograph each receipt, date the file, and keep one dated, indexed PDF per tax year. Runs in your browser — nothing is uploaded, free for up to 5 receipts.">
+<link rel="canonical" href="https://maxhemmerich.github.io/receipts-to-pdf/how-to-organize-receipts-for-taxes.html">
+<meta name="theme-color" content="#f4f1e9">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ReceiptStack">
+<meta property="og:title" content="How to organize receipts for taxes">
+<meta property="og:description" content="Photograph each receipt, date the file, and keep one dated, indexed PDF per tax year. In your browser: no upload, no account, free for up to 5 receipts.">
+<meta property="og:url" content="https://maxhemmerich.github.io/receipts-to-pdf/how-to-organize-receipts-for-taxes.html">
+<meta property="og:image" content="https://maxhemmerich.github.io/receipts-to-pdf/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The ReceiptStack index page: seven receipts listed with dates and amounts, total $712.14">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How to organize receipts for taxes">
+<meta name="twitter:description" content="Photograph each receipt, date the file, and keep one dated, indexed PDF per tax year. No upload, no account.">
+<meta name="twitter:image" content="https://maxhemmerich.github.io/receipts-to-pdf/assets/og-card.png">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="bar">
+  <span class="brand">ReceiptStack</span>
+  <nav>
+    <a href="./">The tool</a>
+    <a href="./#sample">Sample output</a>
+    <a href="./#privacy">Privacy</a>
+  </nav>
+</header>
+
+<main>
+
+  <p class="eyebrow">Guide</p>
+  <h1>How to organize receipts for taxes</h1>
+  <p class="lede">Organizing receipts is a filing job before it is anything else: get each one into a
+  dated, ordered pile you can hand over. This is the system that costs nothing and does not depend on
+  any app keeping your data &mdash; one dated photo per receipt, one folder per tax year, one PDF that
+  lists them in order with a total. It happens in the browser tab you already have open.</p>
+  <p><a href="./#tool">Open the tool</a> &middot; <a href="downloads/receipts-sample.pdf">see a real
+  output first</a></p>
+
+  <section class="block">
+    <h2>Why the shoebox fails</h2>
+    <p>Two things go wrong with receipts before the tax question even comes up. First, the paper
+    fades: a thermal till receipt is unreadable within a year or two if it is left in a drawer or a
+    car. Second, the pile has no order &mdash; a bag of paper, or a camera roll of photos named
+    <span class="dim">IMG_4821.jpg</span>, tells you nothing about which receipt is from when.</p>
+    <p>A system only has to fix those two things. Photograph every receipt while the ink is still
+    there, put a date on it, and keep the year's receipts together in one file. That is the whole
+    job.</p>
+  </section>
+
+  <section class="block">
+    <h2>A system in four steps</h2>
+    <dl class="facts">
+      <dt>1. Capture at the moment</dt>
+      <dd>Photograph a receipt as you get it, not at tax time. A phone photo of a fresh receipt is
+      legible; the same receipt in a drawer for a year may not be. One photo per receipt, straight
+      on, on a plain surface.</dd>
+      <dt>2. Put the date in the filename</dt>
+      <dd>The date is the one thing a photo of a receipt loses. Naming the file with its date is what
+      lets the pile sort itself later &mdash; the tool reads the date straight out of the filename
+      (examples below). Where it cannot, you type the date into the row.</dd>
+      <dt>3. Keep one file per tax year</dt>
+      <dd>Drop the year's photos in, build a single PDF, and keep it next to that year's return. One
+      file, one year, in date order &mdash; not four hundred loose images in a folder.</dd>
+      <dt>4. Keep the index with the file</dt>
+      <dd>The PDF opens with a cover page that lists every receipt in order with its date and amount,
+      then a total for the batch. That is the page you or your accountant scan first to see the year
+      at a glance before going into the individual receipts.</dd>
+    </dl>
+  </section>
+
+  <section class="block">
+    <h2>Where this tool fits</h2>
+    <p>ReceiptStack does steps 2 to 4 for you, in the browser. You drop the photos in, check the list
+    it makes, and download one dated, indexed PDF &mdash; a cover index, one receipt per page, and a
+    footer on each page so the printout survives being shuffled on a desk. Nothing is uploaded: there
+    is no server behind this page to send your receipts to. See
+    <a href="combine-receipt-photos-into-one-pdf.html">what is in the PDF</a> for the details, or
+    <a href="./#tool">open the tool</a> and load the sample receipts first.</p>
+  </section>
+
+  <section class="block">
+    <h2>Where the dates come from</h2>
+    <p>From the filename, because once a receipt is a photo the filename is usually the only place a
+    date exists. These all give their date up:</p>
+    <dl class="facts">
+      <dt>IMG_20260305_1420.jpg</dt><dd>reads as 2026-03-05</dd>
+      <dt>2026-03-05_receipt.jpg</dt><dd>reads as 2026-03-05</dd>
+      <dt>Scan_20260503-1420.png</dt><dd>reads as 2026-05-03</dd>
+      <dt>5 Mar 2026 lunch.jpg</dt><dd>reads as 2026-03-05</dd>
+    </dl>
+    <p>Anything genuinely ambiguous &mdash; <span class="dim">receipt_03-04-2026.jpg</span> could be
+    4 March or 3 April &mdash; is left blank rather than guessed, and you type it in the row. A batch
+    is sorted by the date each receipt carries as it loads, so dropping a pile in any order still
+    gives you a PDF that reads oldest to newest.</p>
+  </section>
+
+  <section class="block">
+    <h2>What this does not do</h2>
+    <p>This is a filing method, not tax advice. It puts your receipts in one ordered file with a
+    total; it does not decide what you can claim, does not compute a deduction, and does not know the
+    rules for where you live. Whether an expense is claimable, and how long you should keep the file
+    afterwards, is a question for your accountant or your tax authority &mdash; not for this page.</p>
+    <p>The tool itself makes no tax claim either. It builds the PDF. That is all.</p>
+  </section>
+
+  <section class="block">
+    <h2>Questions</h2>
+    <dl class="facts">
+      <dt>Do I need an app that connects to my bank?</dt>
+      <dd>No. Nothing here connects anywhere &mdash; not to a bank, not to a server. You photograph
+      the receipts you have and the file is built in your own browser.</dd>
+      <dt>Can I do a whole year in one PDF?</dt>
+      <dd>Yes. On the unlocked tier there is no limit. On the free tier the PDF is built from the
+      first 5 receipts in the list, and the result tells you how many were left out.</dd>
+      <dt>Can I use receipts I already have as PDFs?</dt>
+      <dd>This tool takes photos and image files (JPG, PNG, WebP, GIF), not PDFs. If a receipt is
+      already a PDF, you would turn its page into an image first, then add it like any other.</dd>
+      <dt>Where does the file end up?</dt>
+      <dd>In your browser's downloads, on your own machine. Nothing about the batch is uploaded or
+      stored anywhere &mdash; the file is assembled by the JavaScript in the tab.</dd>
+      <dt>What does it cost?</dt>
+      <dd>Free for a PDF of up to 5 receipts, index and totals included, no account and no email. A
+      one-time $9 unlock removes the 5-receipt limit and the small footer mark on each page.</dd>
+    </dl>
+  </section>
+
+  <footer class="foot">
+    <p><a href="./">ReceiptStack</a> &mdash; one page, no backend. <a href="https://github.com/maxhemmerich/receipts-to-pdf">Source</a>.</p>
+    <p class="dim">Not tax advice. This tool puts your receipts in one file; what you claim is your call and your accountant&rsquo;s.</p>
+  </footer>
+
+</main>
+
+</body>
+</html>
