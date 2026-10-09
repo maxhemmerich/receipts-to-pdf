@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<title>Reimbursement claim PDF — all your receipts in one dated file | ReceiptStack</title>
+<meta name="description" content="How to put a reimbursement claim together as one PDF: drop the receipt photos in, check the dates and amounts, download one indexed PDF with a total to attach to the claim. Runs in your browser — nothing is uploaded, free for up to 5 receipts.">
+<link rel="canonical" href="https://maxhemmerich.github.io/receipts-to-pdf/reimbursement-claim-pdf.html">
+<meta name="theme-color" content="#f4f1e9">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ReceiptStack">
+<meta property="og:title" content="Reimbursement claim PDF – your receipts in one dated file">
+<meta property="og:description" content="Drop the receipt photos in, check the dates and amounts, download one indexed PDF with a total to attach to the claim. In your browser: no upload, no account, free for up to 5 receipts.">
+<meta property="og:url" content="https://maxhemmerich.github.io/receipts-to-pdf/reimbursement-claim-pdf.html">
+<meta property="og:image" content="https://maxhemmerich.github.io/receipts-to-pdf/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The ReceiptStack index page: seven receipts listed with dates and amounts, total $712.14">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Reimbursement claim PDF – your receipts in one dated file">
+<meta name="twitter:description" content="One indexed PDF, in date order, with a total — for a claim you have to send in. No upload, no account.">
+<meta name="twitter:image" content="https://maxhemmerich.github.io/receipts-to-pdf/assets/og-card.png">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://maxhemmerich.github.io/receipts-to-pdf/#app",
+      "name": "ReceiptStack",
+      "url": "https://maxhemmerich.github.io/receipts-to-pdf/",
+      "description": "Turns photos of paper receipts into one dated, indexed PDF: a cover index in date order with a total, then one receipt per page. Runs entirely in the browser — no upload, no account, no server.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any device with a modern web browser",
+      "featureList": [
+        "One receipt per page, nothing cropped",
+        "Cover index in date order with a total for the whole batch",
+        "Dates read from the filename when they are in there",
+        "Your photos never leave your browser"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://maxhemmerich.github.io/receipts-to-pdf/reimbursement-claim-pdf.html#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Can I use this for a work expense claim?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. It builds one PDF with every receipt in date order, its date and amount listed on a cover index, and a total for the batch. What an employer or a client will accept is their rule, not this page's."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do my receipts get sent to a website?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. There is no upload and no server to upload to. The page ships a content-security policy that blocks every network request, so the photos are read and the PDF is assembled in your own browser tab."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I get the numbers into a spreadsheet?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. After a build, the same rows download as a CSV — one line per receipt plus the total — so they open straight in Excel, Numbers or Sheets."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How many receipts can I put in one file?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Free for a PDF of up to 5 receipts, cover index and totals included, with no account and no email. The result tells you how many receipts were left out."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it work out what I can claim?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. It builds the file. Which expenses are reimbursable, and at what rate, is between you and whoever pays the claim."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<header class="bar">
+  <span class="brand">ReceiptStack</span>
+  <nav>
+    <a href="./">The tool</a>
+    <a href="./#sample">Sample output</a>
+    <a href="./#privacy">Privacy</a>
+  </nav>
+</header>
+
+<main>
+
+  <p class="eyebrow">Guide</p>
+  <h1>Make a reimbursement claim PDF</h1>
+  <p class="lede">A claim is a pile of receipts plus a number: whoever pays it wants each expense
+  dated, and the whole lot added up, in one file they can open on the first try. This turns the
+  photos on your phone into exactly that &mdash; one PDF, one receipt per page, under a cover page
+  that lists them in date order and totals them. It happens in the browser tab you already have
+  open.</p>
+  <p><a href="./#tool">Open the tool</a> &middot; <a href="downloads/receipts-sample.pdf">see a real
+  output first</a> &middot; <a href="how-to-organize-receipts-for-taxes.html">for taxes instead</a></p>
+
+  <section class="block">
+    <h2>What goes in the claim</h2>
+    <p>Two things, and they fail in different ways. The first is the receipts themselves: paper
+    fades, so a till receipt left in a drawer or a car can be unreadable within a year, which is why
+    photographing each one when you get it is the whole trick. The second is the total &mdash; a
+    claim needs a number on it, and adding a stack of receipts by hand is where the mistakes come
+    from.</p>
+    <p>So the job is: one photo per receipt, a date on each, and one file that carries the list and
+    the sum. Nothing else is needed, and nothing here needs an account.</p>
+  </section>
+
+  <section class="block">
+    <h2>What this tool produces</h2>
+    <dl class="facts">
+      <dt>Cover index</dt>
+      <dd>Every receipt in date order with its date, note and amount, then a total for the batch.
+      On a long claim the index continues onto a second page.</dd>
+      <dt>One receipt per page</dt>
+      <dd>The photo is fitted to the page and centred. Nothing is cropped or cut off, so the
+      amounts the claim rests on are all readable in the file.</dd>
+      <dt>A footer on every page</dt>
+      <dd>Which receipt it is (4 of 9), its date and its amount &mdash; so the pages survive being
+      printed and shuffled on someone&rsquo;s desk.</dd>
+      <dt>A CSV of the same rows</dt>
+      <dd>The index rows also download as a CSV &mdash; one line per receipt plus the total &mdash;
+      so the numbers open straight in a spreadsheet.</dd>
+      <dt>A file you can email</dt>
+      <dd>Photos are resized to 2200 pixels on the long edge, so a stack of receipts stays a few
+      megabytes instead of forty.</dd>
+    </dl>
+  </section>
+
+  <section class="block">
+    <h2>Doing it, step by step</h2>
+    <dl class="facts">
+      <dt>1. Put the photos in</dt>
+      <dd>Drop them on the tool page, or click <i>choose files</i>. JPG, PNG, WebP and GIF. A file
+      that is not a photo is named in a <i>Skipped:</i> line and the rest of the batch still
+      builds.</dd>
+      <dt>2. Check the list</dt>
+      <dd>Each photo gets a row: a note, a date, an amount. Where the date came out of the
+      filename the row says so; where it could not, you type it in. Move a row with the arrows,
+      turn a sideways photo with the &#8635; button, remove a mistake with the &#215;.</dd>
+      <dt>3. Add up and download</dt>
+      <dd>Give the file a title if you want one (&ldquo;Travel, October&rdquo;), pick Letter or A4,
+      and press <i>Build the PDF</i>. The result shows the receipt count, the page count, the size
+      and the total, then gives you the download.</dd>
+    </dl>
+  </section>
+
+  <section class="block">
+    <h2>Nothing gets uploaded</h2>
+    <p>A claim spreadsheet is a list of everything you bought, and the receipt photos carry your
+    card number and your address. There is no server here to send them to &mdash; no backend, no
+    API key, no analytics. The tool page carries a content-security policy whose
+    <span class="dim">connect-src 'none'</span> directive blocks every network request, so it could
+    not upload your photos even if a bug tried to. The PDF and the CSV are assembled by the
+    JavaScript already running in the tab, and land in your own downloads folder. The full source
+    is on <a href="https://github.com/maxhemmerich/receipts-to-pdf">GitHub</a>.</p>
+  </section>
+
+  <section class="block">
+    <h2>What it costs</h2>
+    <p>Free for a file of up to <b>5 receipts</b>: the cover index, the totals, the PDF, the CSV
+    and the download are all included, with no account and no email. Above that, the tool page
+    states what the unlock is and whether checkout is connected yet &mdash; while it is not,
+    nothing on this site can take money and the free version works fully.</p>
+  </section>
+
+  <section class="block">
+    <h2>What this does not do</h2>
+    <p>It does not decide what you can claim, does not compute a rate or a per-diem, and does not
+    submit anything anywhere. It puts your receipts in one ordered file with a total. Whether an
+    expense is reimbursable, what evidence is wanted, and how long to keep the file are questions
+    for whoever pays the claim &mdash; not for this page.</p>
+    <p>The tool itself makes no such claim either. It builds the file. That is all.</p>
+  </section>
+
+  <section class="block">
+    <h2>Questions</h2>
+    <dl class="facts">
+      <dt>Can I use this for a work expense claim?</dt>
+      <dd>Yes. It builds one PDF with every receipt in date order, its date and amount listed on a
+      cover index, and a total for the batch. What an employer or a client will accept is their
+      rule, not this page&rsquo;s.</dd>
+      <dt>Do my receipts get sent to a website?</dt>
+      <dd>No. There is no upload and no server to upload to. The page ships a content-security
+      policy that blocks every network request, so the photos are read and the PDF is assembled in
+      your own browser tab.</dd>
+      <dt>Can I get the numbers into a spreadsheet?</dt>
+      <dd>Yes. After a build, the same rows download as a CSV &mdash; one line per receipt plus the
+      total &mdash; so they open straight in Excel, Numbers or Sheets.</dd>
+      <dt>How many receipts can I put in one file?</dt>
+      <dd>Free for a PDF of up to 5 receipts, cover index and totals included, with no account and
+      no email. The result tells you how many receipts were left out.</dd>
+      <dt>Does it work out what I can claim?</dt>
+      <dd>No. It builds the file. Which expenses are reimbursable, and at what rate, is between you
+      and whoever pays the claim.</dd>
+    </dl>
+  </section>
+
+  <footer class="foot">
+    <p><a href="./">ReceiptStack</a> &mdash; one page, no backend. <a href="https://github.com/maxhemmerich/receipts-to-pdf">Source</a>.</p>
+    <p class="dim">Not tax advice, and not a claim decision. This tool puts your receipts in one file; what you send it in for is your call.</p>
+  </footer>
+
+</main>
+
+</body>
+</html>

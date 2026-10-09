@@ -285,6 +285,14 @@ button.primary:disabled { background: var(--line); border-color: var(--line-2); 
   text-decoration: none;
 }
 .result a.download:hover { background: var(--ink); color: #fff; }
+.result a.download.secondary {
+  margin-left: 10px;
+  background: transparent;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+}
+.result a.download.secondary:hover { background: var(--ink); border-color: var(--ink); color: #fff; }
+.result p.dim { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
 
 /* ---------- blocks ---------- */
 

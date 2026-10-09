@@ -158,6 +158,43 @@ function parseDateFromName(name) {
   return null;
 }
 
+/* --------------------------------------------------------------- the CSV
+   The index rows, as a file. Same rows the PDF cover index prints, same order,
+   same total — one line per receipt, then the total line. Amounts are written
+   as plain numbers (18.75, not $18.75) so a spreadsheet reads them as numbers
+   and a blank amount stays an empty cell. A UTF-8 BOM leads the file so Excel
+   opens the non-ASCII characters correctly. */
+
+function csvCell(v) {
+  var s = String(v === undefined || v === null ? '' : v);
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function amountOf(it) {
+  var n = parseFloat(String(it.amount).replace(/[^0-9.\-]/g, ''));
+  return isFinite(n) ? n : null;
+}
+
+function csvFor(items) {
+  var amts = items.map(amountOf);
+  var entered = amts.filter(function (a) { return a !== null; }).length;
+  var total = amts.reduce(function (a, b) { return a + (b === null ? 0 : b); }, 0);
+  var label = entered === 0 ? 'Total'
+    : entered === amts.length ? 'Total of ' + entered + (entered === 1 ? ' amount' : ' amounts')
+    : 'Total of ' + entered + ' of ' + amts.length + ' amounts';
+
+  var rows = [['No', 'Date', 'Note', 'Amount']];
+  items.forEach(function (it, i) {
+    rows.push([String(i + 1), it.date || '', it.note || '',
+               amts[i] === null ? '' : amts[i].toFixed(2)]);
+  });
+  rows.push(['', '', label, entered === 0 ? '' : total.toFixed(2)]);
+
+  return '\uFEFF' + rows.map(function (r) {
+    return r.map(csvCell).join(',');
+  }).join('\r\n') + '\r\n';
+}
+
 /* ------------------------------------------------------------- image work */
 
 function loadImg(src) {
@@ -674,7 +711,7 @@ function loadSamples() {
   }, Promise.resolve()).then(function () { sortByDate(); renderList(); setStatus(''); }).then(endRead, endRead);
 }
 
-var lastPdfBlob = null, lastPdfUrl = null;
+var lastPdfBlob = null, lastPdfUrl = null, lastCsvUrl = null, lastCsvText = '';
 
 function build() {
   if (state.reading > 0 || state.building) return;    // never build from a half-read list
@@ -704,6 +741,15 @@ function build() {
     var range = dates.length ? dates[0] + '-to-' + dates[dates.length - 1] : 'no-dates';
     var fname = slug($('title').value || 'receipts') + '-' + range + '.pdf';
 
+    /* the same rows as the cover index, as a spreadsheet file. Built from the
+       SAME `included` slice as the PDF, so the free limit means the same thing
+       in the CSV as it does in the file. */
+    lastCsvText = csvFor(included);
+    var csvBlob = new Blob([lastCsvText], { type: 'text/csv' });
+    if (lastCsvUrl) URL.revokeObjectURL(lastCsvUrl);
+    lastCsvUrl = URL.createObjectURL(csvBlob);
+    var cname = slug($('title').value || 'receipts') + '-' + range + '.csv';
+
     var res = $('result');
     res.textContent = '';
     var p1 = document.createElement('p');
@@ -727,8 +773,22 @@ function build() {
     a.download = fname;
     a.textContent = 'Download ' + fname;
     res.appendChild(a);
+
+    var c = document.createElement('a');
+    c.className = 'download secondary';
+    c.href = lastCsvUrl;
+    c.download = cname;
+    c.textContent = 'Download ' + cname;
+    res.appendChild(c);
+
+    var hint = document.createElement('p');
+    hint.className = 'dim';
+    hint.textContent = 'The CSV is the same rows as the index page \u2014 one line per receipt ' +
+      'plus the total \u2014 for a spreadsheet.';
+    res.appendChild(hint);
+
     res.hidden = false;
-    setStatus('Nothing was uploaded. The PDF was made in this tab.');
+    setStatus('Nothing was uploaded. The PDF and the CSV were made in this tab.');
     state.building = false;
     updateControls();
   }).catch(function (e) {
@@ -809,8 +869,9 @@ function init() {
 window.RS = {
   buildPdf: buildPdf, parseDateFromName: parseDateFromName, normalizeImage: normalizeImage,
   clean: clean, state: state, addFiles: addFiles, loadSamples: loadSamples, build: build,
-  sortByDate: sortByDate,
-  get lastBlob() { return lastPdfBlob; }
+  sortByDate: sortByDate, csvFor: csvFor,
+  get lastBlob() { return lastPdfBlob; },
+  get lastCsvText() { return lastCsvText; }
 };
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
