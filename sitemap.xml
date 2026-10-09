@@ -37,6 +37,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://maxhemmerich.github.io/receipts-to-pdf/downloads/receipts-sample-free.pdf</loc>
+    <lastmod>2026-10-08</lastmod>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://maxhemmerich.github.io/receipts-to-pdf/downloads/receipts-sample.pdf</loc>
     <lastmod>2026-10-07</lastmod>
     <priority>0.5</priority>
