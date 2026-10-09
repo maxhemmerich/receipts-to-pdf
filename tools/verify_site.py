@@ -71,6 +71,18 @@ IRS_SOURCES = [
 IRS_RULE = ("Generally, you must keep your records that support an item of income, deduction or credit "
             "shown on your tax return until the period of limitations for that tax return runs out.")
 IRS_RULE_2 = "Keep records for 3 years if situations (4), (5), and (6) below do not apply to you."
+# The third cited guide: the identical retention question for the United Kingdom, quoting HMRC's
+# gov.uk pages. Same guard -- its two source URLs must be named and its two headline sentences carried
+# verbatim, so a rewrite cannot drop or soften a quotation.
+HMRC_PAGE = "how-long-to-keep-records-hmrc.html"
+HMRC_SOURCES = [
+    "https://www.gov.uk/self-employed-records/how-long-to-keep-your-records",
+    "https://www.gov.uk/running-a-limited-company/company-and-accounting-records",
+]
+HMRC_RULE = ("You must keep your records for at least 5 years after the 31 January submission deadline "
+             "of the relevant tax year.")
+HMRC_RULE_2 = ("You must keep records for 6 years from the end of the last company financial year "
+               "they relate to, or longer if:")
 
 # The free build's footer mark must carry the tool's own address: the one PDF a free
 # user emails to an accountant is a free build, and the mark on it is the only thing in
@@ -490,7 +502,7 @@ def check_served_page_matches_tree(page_path, fetch):
 
 
 def _html_files():
-    return ["index.html"] + GUIDES + [CRA_PAGE, IRS_PAGE]
+    return ["index.html"] + GUIDES + [CRA_PAGE, IRS_PAGE, HMRC_PAGE]
 
 
 def _loc_for(page):
@@ -818,6 +830,14 @@ def check_cited_page_irs():
         IRS_SOURCES, (IRS_RULE, IRS_RULE_2))
 
 
+def check_cited_page_hmrc():
+    """The HMRC guide -- the identical retention question for the United Kingdom."""
+    return _cited_page_failures(
+        HMRC_PAGE,
+        r"<title>[^<]*how long do i have to keep receipts in the uk[^<]*</title>",
+        HMRC_SOURCES, (HMRC_RULE, HMRC_RULE_2))
+
+
 def check_served_page(fetch, page):
     """The served copy of `page` must be byte-identical to the tree copy being shipped."""
     failures = []
@@ -866,7 +886,7 @@ def check_cited_sources_live():
     except Exception as e:  # noqa
         return ["could not load the generator for the live source check: %s" % e]
 
-    for label, attr in (("CRA", "SOURCES"), ("IRS", "IRS_SOURCES")):
+    for label, attr in (("CRA", "SOURCES"), ("IRS", "IRS_SOURCES"), ("UK", "HMRC_SOURCES")):
         sources = getattr(gen, attr, None)
         if not sources:
             failures.append("the generator exposes no %s to re-check" % attr)
@@ -909,6 +929,7 @@ def main():
     failures += check_new_page_linked()
     failures += check_cited_page()
     failures += check_cited_page_irs()
+    failures += check_cited_page_hmrc()
     failures += check_sitemap_covers_pages()
     failures += check_faq_markup_matches_page()
     failures += check_wayback_references()
@@ -921,6 +942,7 @@ def main():
         failures += check_served_page(fetch, GUIDE_SAMPLES)
         failures += check_served_page(fetch, CRA_PAGE)
         failures += check_served_page(fetch, IRS_PAGE)
+        failures += check_served_page(fetch, HMRC_PAGE)
         failures += check_sample_labels(a.page, ROOT, served=True, fetch=fetch)
         failures += check_cited_sources_live()
     failures += check_config()
