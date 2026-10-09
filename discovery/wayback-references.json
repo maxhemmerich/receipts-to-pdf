@@ -2,14 +2,14 @@
   "_note": "Wayback Machine captures of this site's public pages. Written by tools/archive-pages.py; verified against the CDX index, not the lagging /wayback/available API.",
   "references": {
     "https://maxhemmerich.github.io/receipts-to-pdf/": {
-      "snapshot": "https://web.archive.org/web/20261009132112/https://maxhemmerich.github.io/receipts-to-pdf/",
+      "snapshot": "https://web.archive.org/web/20261009144504/https://maxhemmerich.github.io/receipts-to-pdf/",
       "statuscode": "200",
-      "timestamp": "20261009132112"
+      "timestamp": "20261009144504"
     },
     "https://maxhemmerich.github.io/receipts-to-pdf/combine-receipt-photos-into-one-pdf.html": {
-      "snapshot": "https://web.archive.org/web/20261009132217/https://maxhemmerich.github.io/receipts-to-pdf/combine-receipt-photos-into-one-pdf.html",
+      "snapshot": "https://web.archive.org/web/20261009144731/https://maxhemmerich.github.io/receipts-to-pdf/combine-receipt-photos-into-one-pdf.html",
       "statuscode": "200",
-      "timestamp": "20261009132217"
+      "timestamp": "20261009144731"
     },
     "https://maxhemmerich.github.io/receipts-to-pdf/downloads/how-to-use.pdf": {
       "note": "captured under '?v=1' (same static bytes)",
@@ -18,49 +18,51 @@
       "timestamp": "20261009134754"
     },
     "https://maxhemmerich.github.io/receipts-to-pdf/downloads/receipts-sample-free.pdf": {
-      "snapshot": "https://web.archive.org/web/20261009133526/https://maxhemmerich.github.io/receipts-to-pdf/downloads/receipts-sample-free.pdf",
+      "note": "captured under '?v=1' (same static bytes)",
+      "snapshot": "https://web.archive.org/web/20261009150257/https://maxhemmerich.github.io/receipts-to-pdf/downloads/receipts-sample-free.pdf?v=1",
       "statuscode": "200",
-      "timestamp": "20261009133526"
+      "timestamp": "20261009150257"
     },
     "https://maxhemmerich.github.io/receipts-to-pdf/downloads/receipts-sample.pdf": {
-      "snapshot": "https://web.archive.org/web/20261009093216/https://maxhemmerich.github.io/receipts-to-pdf/downloads/receipts-sample.pdf",
+      "note": "captured under '?v=1' (same static bytes)",
+      "snapshot": "https://web.archive.org/web/20261009150847/https://maxhemmerich.github.io/receipts-to-pdf/downloads/receipts-sample.pdf?v=1",
       "statuscode": "200",
-      "timestamp": "20261009093216"
+      "timestamp": "20261009150847"
     },
     "https://maxhemmerich.github.io/receipts-to-pdf/expense-report-with-receipts.html": {
-      "snapshot": "https://web.archive.org/web/20261009132731/https://maxhemmerich.github.io/receipts-to-pdf/expense-report-with-receipts.html",
+      "snapshot": "https://web.archive.org/web/20261009145243/https://maxhemmerich.github.io/receipts-to-pdf/expense-report-with-receipts.html",
       "statuscode": "200",
-      "timestamp": "20261009132731"
+      "timestamp": "20261009145243"
     },
     "https://maxhemmerich.github.io/receipts-to-pdf/how-long-to-keep-receipts.html": {
-      "snapshot": "https://web.archive.org/web/20261009133208/https://maxhemmerich.github.io/receipts-to-pdf/how-long-to-keep-receipts.html",
+      "snapshot": "https://web.archive.org/web/20261009145736/https://maxhemmerich.github.io/receipts-to-pdf/how-long-to-keep-receipts.html",
       "statuscode": "200",
-      "timestamp": "20261009133208"
+      "timestamp": "20261009145736"
     },
     "https://maxhemmerich.github.io/receipts-to-pdf/how-long-to-keep-records-irs.html": {
-      "snapshot": "https://web.archive.org/web/20261009133324/https://maxhemmerich.github.io/receipts-to-pdf/how-long-to-keep-records-irs.html",
+      "snapshot": "https://web.archive.org/web/20261009145857/https://maxhemmerich.github.io/receipts-to-pdf/how-long-to-keep-records-irs.html",
       "statuscode": "200",
-      "timestamp": "20261009133324"
+      "timestamp": "20261009145857"
     },
     "https://maxhemmerich.github.io/receipts-to-pdf/how-to-organize-receipts-for-taxes.html": {
-      "snapshot": "https://web.archive.org/web/20261009132418/https://maxhemmerich.github.io/receipts-to-pdf/how-to-organize-receipts-for-taxes.html",
+      "snapshot": "https://web.archive.org/web/20261009144927/https://maxhemmerich.github.io/receipts-to-pdf/how-to-organize-receipts-for-taxes.html",
       "statuscode": "200",
-      "timestamp": "20261009132418"
+      "timestamp": "20261009144927"
     },
     "https://maxhemmerich.github.io/receipts-to-pdf/multiple-receipts-one-page-pdf.html": {
-      "snapshot": "https://web.archive.org/web/20261009132945/https://maxhemmerich.github.io/receipts-to-pdf/multiple-receipts-one-page-pdf.html",
+      "snapshot": "https://web.archive.org/web/20261009145354/https://maxhemmerich.github.io/receipts-to-pdf/multiple-receipts-one-page-pdf.html",
       "statuscode": "200",
-      "timestamp": "20261009132945"
+      "timestamp": "20261009145354"
     },
     "https://maxhemmerich.github.io/receipts-to-pdf/reimbursement-claim-pdf.html": {
-      "snapshot": "https://web.archive.org/web/20261009132625/https://maxhemmerich.github.io/receipts-to-pdf/reimbursement-claim-pdf.html",
+      "snapshot": "https://web.archive.org/web/20261009145054/https://maxhemmerich.github.io/receipts-to-pdf/reimbursement-claim-pdf.html",
       "statuscode": "200",
-      "timestamp": "20261009132625"
+      "timestamp": "20261009145054"
     },
     "https://maxhemmerich.github.io/receipts-to-pdf/scan-receipts-to-pdf-on-a-phone.html": {
-      "snapshot": "https://web.archive.org/web/20261009133112/https://maxhemmerich.github.io/receipts-to-pdf/scan-receipts-to-pdf-on-a-phone.html",
+      "snapshot": "https://web.archive.org/web/20261009145615/https://maxhemmerich.github.io/receipts-to-pdf/scan-receipts-to-pdf-on-a-phone.html",
       "statuscode": "200",
-      "timestamp": "20261009133112"
+      "timestamp": "20261009145615"
     }
   }
 }
