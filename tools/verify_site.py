@@ -33,6 +33,18 @@ except ImportError:
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://maxhemmerich.github.io/receipts-to-pdf"
 
+# The guide pages that carry the tool's search intents. index.html is the tool
+# itself. Every one of these must be in sitemap.xml and must link the phone page.
+GUIDES = [
+    "combine-receipt-photos-into-one-pdf.html",
+    "how-to-organize-receipts-for-taxes.html",
+    "reimbursement-claim-pdf.html",
+    "expense-report-with-receipts.html",
+    "multiple-receipts-one-page-pdf.html",
+    "scan-receipts-to-pdf-on-a-phone.html",
+]
+NEW_PAGE = "scan-receipts-to-pdf-on-a-phone.html"
+
 
 # --------------------------------------------------------------------------- #
 # helpers
@@ -281,6 +293,145 @@ def check_served_page_matches_tree(page_path, fetch):
     return failures
 
 
+def _html_files():
+    return ["index.html"] + GUIDES
+
+
+def _loc_for(page):
+    return SITE + "/" if page == "index.html" else "%s/%s" % (SITE, page)
+
+
+def check_new_page_indexable():
+    """The phone guide must own its title / description / canonical / OG card."""
+    p = os.path.join(ROOT, NEW_PAGE)
+    print("check: phone guide is indexable and self-canonical (%s)" % NEW_PAGE)
+    if not os.path.exists(p):
+        return ["%s is missing" % NEW_PAGE]
+    html = open(p, encoding="utf-8").read()
+    url = "%s/%s" % (SITE, NEW_PAGE)
+    rules = [
+        ("title", r"<title>[^<]*scan receipts to one PDF on a phone[^<]*</title>"),
+        ("description", r'<meta name="description" content="[^"]{80,}"'),
+        ("canonical", re.escape('<link rel="canonical" href="%s">' % url)),
+        ("og:url", re.escape('<meta property="og:url" content="%s">' % url)),
+        ("og:image", re.escape('<meta property="og:image" content="%s/assets/og-card.png">' % SITE)),
+        ("twitter:card", r'<meta name="twitter:card" content="summary_large_image">'),
+        ("links the tool", r'href="\./(?:#tool)?"'),
+    ]
+    failures = []
+    for name, pat in rules:
+        ok = re.search(pat, html, re.I) is not None
+        print("  %-14s : %s" % (name, ok))
+        if not ok:
+            failures.append("%s: %s is missing or wrong" % (NEW_PAGE, name))
+    return failures
+
+
+def check_new_page_linked():
+    """The phone guide must be reachable: from the landing page and a sibling guide."""
+    failures = []
+    print("check: phone guide is linked into the mesh")
+    landing = open(os.path.join(ROOT, "index.html"), encoding="utf-8").read()
+    from_landing = NEW_PAGE in landing
+    print("  linked from index.html  : %s" % from_landing)
+    if not from_landing:
+        failures.append("index.html does not link %s" % NEW_PAGE)
+    siblings = [
+        g for g in GUIDES
+        if g != NEW_PAGE and NEW_PAGE in open(os.path.join(ROOT, g), encoding="utf-8").read()
+    ]
+    print("  linked from guides      : %d/%d" % (len(siblings), len(GUIDES) - 1))
+    if not siblings:
+        failures.append("no sibling guide links %s" % NEW_PAGE)
+    return failures
+
+
+def check_sitemap_covers_pages():
+    """sitemap.xml must list every indexable page and point only at files that exist."""
+    failures = []
+    html = open(os.path.join(ROOT, "sitemap.xml"), encoding="utf-8").read()
+    locs = re.findall(r"<loc>\s*([^<]+?)\s*</loc>", html)
+    print("check: sitemap.xml covers every indexable page (%d <loc>)" % len(locs))
+    for page in _html_files():
+        ok = _loc_for(page) in locs
+        print("  %-46s : %s" % (page, ok))
+        if not ok:
+            failures.append("sitemap.xml does not list %s" % page)
+    for loc in locs:
+        if not loc.startswith(SITE + "/"):
+            failures.append("sitemap.xml lists a URL outside this site: %s" % loc)
+            continue
+        rel = loc[len(SITE) + 1:] or "index.html"
+        if not os.path.exists(os.path.join(ROOT, rel)):
+            failures.append("sitemap.xml lists %s, which is not in the tree" % rel)
+    return failures
+
+
+def check_no_external_subresources():
+    """No page may load a script/style/image from a non-'self' origin.
+
+    This is the machine check behind the copy's promise: the tool ships
+    connect-src 'none' and loads nothing from anywhere else. The GitHub source
+    link is an <a href>, not a subresource, so it is correctly not counted.
+    """
+    failures = []
+    print("check: no external subresources on any page")
+    pat = re.compile(
+        r'<(?:script|img|iframe|source)\b[^>]*\bsrc="([^"]+)"'
+        r'|<link\b[^>]*\brel="stylesheet"[^>]*\bhref="([^"]+)"',
+        re.I,
+    )
+    for page in _html_files():
+        html = open(os.path.join(ROOT, page), encoding="utf-8").read()
+        bad = [m.group(1) or m.group(2) for m in pat.finditer(html)
+               if re.match(r"(?:https?:)?//", m.group(1) or m.group(2))]
+        print("  %-46s : %s" % (page, "clean" if not bad else "EXTERNAL " + ", ".join(bad)))
+        if bad:
+            failures.append("%s loads an external subresource: %s" % (page, ", ".join(bad)))
+    return failures
+
+
+def check_og_card():
+    """Every page must reference the social card, and the card must be 1200x630."""
+    import struct
+
+    print("check: social card (assets/og-card.png)")
+    card = os.path.join(ROOT, "assets", "og-card.png")
+    if not os.path.exists(card):
+        return ["assets/og-card.png is missing"]
+    w, h = struct.unpack(">II", open(card, "rb").read(24)[16:24])
+    print("  card size               : %dx%d" % (w, h))
+    failures = []
+    if (w, h) != (1200, 630):
+        failures.append("assets/og-card.png is %dx%d, not 1200x630" % (w, h))
+    for page in _html_files():
+        html = open(os.path.join(ROOT, page), encoding="utf-8").read()
+        has_img = ('<meta property="og:image" content="%s/assets/og-card.png">' % SITE) in html
+        has_tw = '<meta name="twitter:card" content="summary_large_image">' in html
+        ok = has_img and has_tw
+        print("  %-46s : %s" % (page, ok))
+        if not ok:
+            failures.append("%s: missing og:image=%s/assets/og-card.png or twitter:card=summary_large_image"
+                            % (page, SITE))
+    return failures
+
+
+def check_served_new_page(fetch):
+    """The served phone guide must be byte-identical to the tree copy being shipped."""
+    failures = []
+    raw = fetch(NEW_PAGE)
+    local = open(os.path.join(ROOT, NEW_PAGE), "rb").read()
+    print("check: served phone guide == tree")
+    if raw is None:
+        failures.append("could not fetch the served %s" % NEW_PAGE)
+    elif raw != local:
+        failures.append("served %s differs from the tree copy (served %d, tree %d bytes)"
+                        % (NEW_PAGE, len(raw), len(local)))
+    else:
+        print("  served == tree : True (%d bytes)" % len(local))
+    return failures
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--served", action="store_true", help="also fetch the live site and compare")
@@ -290,9 +441,15 @@ def main():
 
     failures = []
     failures += check_sample_labels(a.page, ROOT, served=False)
+    failures += check_new_page_indexable()
+    failures += check_new_page_linked()
+    failures += check_sitemap_covers_pages()
+    failures += check_no_external_subresources()
+    failures += check_og_card()
     if a.served:
         fetch = make_fetcher()
         failures += check_served_page_matches_tree(a.page, fetch)
+        failures += check_served_new_page(fetch)
         failures += check_sample_labels(a.page, ROOT, served=True, fetch=fetch)
     failures += check_config()
     failures += check_paid_door_atomic()

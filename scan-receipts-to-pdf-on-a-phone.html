@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<title>Scan receipts to one PDF on a phone — no app, no upload | ReceiptStack</title>
+<meta name="description" content="Turn the receipt photos on your phone into one dated, indexed PDF without installing a scanning app: use the camera you already have, then pick the pictures in this page. No account, nothing uploaded — the PDF is built in the browser, free for up to 5 receipts.">
+<link rel="canonical" href="https://maxhemmerich.github.io/receipts-to-pdf/scan-receipts-to-pdf-on-a-phone.html">
+<meta name="theme-color" content="#f4f1e9">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ReceiptStack">
+<meta property="og:title" content="Scan receipts to one PDF on a phone — no app, no upload">
+<meta property="og:description" content="Your phone camera is the scanner; this page turns the pictures into one dated, indexed PDF. No app to install, no account, nothing uploaded. Free for up to 5 receipts.">
+<meta property="og:url" content="https://maxhemmerich.github.io/receipts-to-pdf/scan-receipts-to-pdf-on-a-phone.html">
+<meta property="og:image" content="https://maxhemmerich.github.io/receipts-to-pdf/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The ReceiptStack index page: seven receipts listed with dates and amounts, total $712.14">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Scan receipts to one PDF on a phone — no app, no upload">
+<meta name="twitter:description" content="Your phone camera is the scanner; this page turns the pictures into one dated, indexed PDF. No app, no account, nothing uploaded.">
+<meta name="twitter:image" content="https://maxhemmerich.github.io/receipts-to-pdf/assets/og-card.png">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://maxhemmerich.github.io/receipts-to-pdf/#app",
+      "name": "ReceiptStack",
+      "url": "https://maxhemmerich.github.io/receipts-to-pdf/",
+      "description": "Turns photos of paper receipts into one dated, indexed PDF: a cover index in date order with a total, then one receipt per page. Runs entirely in the browser — no upload, no account, no server.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any device with a modern web browser",
+      "featureList": [
+        "One receipt per page, nothing cropped",
+        "Cover index in date order with a total for the whole batch",
+        "Dates read from the filename when they are in there",
+        "Your photos never leave your browser"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://maxhemmerich.github.io/receipts-to-pdf/scan-receipts-to-pdf-on-a-phone.html#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Do I need to install a scanning app?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Your phone's camera is the scanner; this is a web page, not an app, so there is nothing to install and nothing to sign up for."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does this app read the receipt for me?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. It does not scan or OCR the receipt and does not guess an amount. It gathers the photos you give it into one PDF, reads a date out of the filename when there is one, and takes the amount you type on each row."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do my photos get uploaded from my phone?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. There is no upload and no server to upload to. The page ships a content-security policy that blocks every network request, so the photos are read and the PDF is assembled in your own browser tab."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it work on an iPhone or an Android phone?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It is an ordinary web page, so it opens in whatever browser is already on the phone. The photo picker is the browser's own, the same one any site uses, so the pictures come straight from the camera roll."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How many receipts can I put in one PDF?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Free for a PDF of up to 5 receipts, index and totals included, with no account and no email. Above that, a one-time $9 unlock removes the limit and the small footer mark."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<header class="bar">
+  <span class="brand">ReceiptStack</span>
+  <nav>
+    <a href="./">The tool</a>
+    <a href="./#sample">Sample output</a>
+    <a href="./#privacy">Privacy</a>
+  </nav>
+</header>
+
+<main>
+
+  <p class="eyebrow">Guide</p>
+  <h1>Scan receipts to one PDF on a phone</h1>
+  <p class="lede">You do not need a scanning app to get a pile of paper receipts into a single PDF
+  from your phone. The camera you already have takes the pictures; the missing step is turning those
+  pictures into one dated, indexed file. This page is that step &mdash; it runs in the browser tab on
+  the phone, with no app, no account and nothing uploaded.</p>
+  <p><a href="./#tool">Open the tool</a> &middot; <a href="downloads/receipts-sample.pdf">see a real
+  output first</a> &middot; <a href="combine-receipt-photos-into-one-pdf.html">combine receipt photos
+  into one PDF</a> &middot; <a href="how-to-organize-receipts-for-taxes.html">for tax filing</a>
+  &middot; <a href="reimbursement-claim-pdf.html">for a reimbursement claim</a> &middot;
+  <a href="expense-report-with-receipts.html">for an expense report</a> &middot;
+  <a href="multiple-receipts-one-page-pdf.html">multiple receipts in one PDF</a></p>
+
+  <section class="block">
+    <h2>The scanner is already in your hand</h2>
+    <p>A phone camera photographs a till receipt well enough to read: the merchant, the date, the tax
+    line and the total all come out legible on a plain surface in ordinary light. What a phone cannot
+    do on its own is put a week of those photos into one file that opens the same way every time.</p>
+    <p>So the workflow is two halves. <b>Photograph</b> the receipts with the phone, and
+    <b>assemble</b> those photos into one PDF here. Nothing is installed for the second half, because
+    it is a web page: the browser that opened this page already has everything it needs to make the
+    file.</p>
+  </section>
+
+  <section class="block">
+    <h2>What you do, in order</h2>
+    <dl class="facts">
+      <dt>1. Photograph each receipt</dt>
+      <dd>One photo per receipt, the receipt filling the frame, on a plain surface. Do it when you get
+      the receipt &mdash; a thermal till receipt left in a drawer or a car can fade to unreadable
+      within a year. Where you can, let the filename carry the date (<span
+      class="dim">IMG_20260305_1420.jpg</span>); the tool reads it back out.</dd>
+      <dt>2. Open the tool on the phone</dt>
+      <dd>Open this site in the phone's browser and tap <i>choose files</i>. That opens the browser's
+      own photo picker &mdash; the same one any website uses &mdash; and the pictures come straight
+      from the camera roll. Pick the whole batch at once.</dd>
+      <dt>3. Check the list it makes</dt>
+      <dd>Each photo becomes a row with a note, a date and an amount. Where the date came out of the
+      filename the row says so; where it could not, you type it in. Turn a sideways photo with the
+      &#8635; button, move a row with the arrows, remove a mistake with the &#215;.</dd>
+      <dt>4. Build the PDF</dt>
+      <dd>Give the file a title if you want one (&ldquo;Receipts, March&rdquo;), pick Letter or A4,
+      and press <i>Build the PDF</i>. It appears in the phone's downloads as one dated, indexed PDF,
+      ready to attach to a claim or drop in a folder.</dd>
+    </dl>
+  </section>
+
+  <section class="block">
+    <h2>What this does not do</h2>
+    <p>It is worth being plain about the word &ldquo;scan&rdquo;, because a scanning app means
+    something this tool is not. This tool does not read the receipt: it does not OCR the merchant or
+    the total, it does not detect the edges of the paper and crop to them, and it does not guess an
+    amount. It does not need to &mdash; the photo is the receipt, and one clear photo per page is
+    what makes a receipt file worth keeping.</p>
+    <p>What it does is assemble the photos you give it: a cover index that lists every receipt in
+    date order with its amount and a total for the batch, then one full page per receipt with its date
+    and amount in the footer. The one thing it reads by itself is a date in the filename. Every other
+    number is one you type on the row.</p>
+  </section>
+
+  <section class="block">
+    <h2>Why the photos never leave the phone</h2>
+    <p>Receipts carry your card number, your address and what you buy, which is exactly the sort of
+    picture you would rather not hand to a stranger's server. There is no server here to hand it to:
+    no backend, no API key, no analytics. The page ships a content-security policy whose <span
+    class="dim">connect-src 'none'</span> directive blocks every network request, so the photos could
+    not be uploaded even if a bug tried to. The PDF is assembled by the JavaScript already running in
+    the tab, and the pictures are read from the phone by the browser itself. The full source is on
+    <a href="https://github.com/maxhemmerich/receipts-to-pdf">GitHub</a>.</p>
+  </section>
+
+  <section class="block">
+    <h2>What it costs</h2>
+    <p>Free for a PDF of up to <b>5 receipts</b>: the cover index, the totals and the download are
+    all included, with no account and no email. A one-time <b>$9</b> unlock removes the 5-receipt
+    limit and the small footer mark on each page. No subscription, no upsell.</p>
+    <p class="dim">The tool page states plainly whether checkout is connected yet. While it is not,
+    nothing on this site can take money, and the free version works fully.</p>
+  </section>
+
+  <section class="block">
+    <h2>Questions</h2>
+    <dl class="facts">
+      <dt>Do I need to install a scanning app?</dt>
+      <dd>No. Your phone's camera is the scanner; this is a web page, not an app, so there is nothing
+      to install and nothing to sign up for.</dd>
+      <dt>Does this app read the receipt for me?</dt>
+      <dd>No. It does not scan or OCR the receipt and does not guess an amount. It gathers the photos
+      you give it into one PDF, reads a date out of the filename when there is one, and takes the
+      amount you type on each row.</dd>
+      <dt>Do my photos get uploaded from my phone?</dt>
+      <dd>No. There is no upload and no server to upload to. The page ships a content-security policy
+      that blocks every network request, so the photos are read and the PDF is assembled in your own
+      browser tab.</dd>
+      <dt>Does it work on an iPhone or an Android phone?</dt>
+      <dd>It is an ordinary web page, so it opens in whatever browser is already on the phone. The
+      photo picker is the browser's own, the same one any site uses, so the pictures come straight
+      from the camera roll.</dd>
+      <dt>How many receipts can I put in one PDF?</dt>
+      <dd>Free for a PDF of up to 5 receipts, index and totals included, with no account and no email.
+      Above that, a one-time $9 unlock removes the limit and the small footer mark.</dd>
+    </dl>
+  </section>
+
+  <footer class="foot">
+    <p><a href="./">ReceiptStack</a> &mdash; one page, no backend. <a href="https://github.com/maxhemmerich/receipts-to-pdf">Source</a>.</p>
+    <p class="dim">Not tax advice. This tool puts your receipts in one file; what you claim is your call and your accountant&rsquo;s.</p>
+  </footer>
+
+</main>
+
+</body>
+</html>

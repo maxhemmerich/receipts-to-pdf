@@ -39,8 +39,9 @@ Open it over `http://`, not `file://` — the sample loader uses a canvas and a 
     reimbursement-claim-pdf.html               guide: a reimbursement claim PDF
     expense-report-with-receipts.html          guide: an expense report with receipts
     multiple-receipts-one-page-pdf.html        guide: multiple receipts in one PDF
+    scan-receipts-to-pdf-on-a-phone.html       guide: doing it from a phone (no app, no upload)
     robots.txt                  crawl rules + sitemap pointer
-    sitemap.xml                 the nine public URLs (landing page, five guides, three downloads)
+    sitemap.xml                 the ten public URLs (landing page, six guides, three downloads)
     assets/app.js               the whole tool, including the PDF builder
     assets/style.css            the theme
     assets/og-card.png          the social card (generated, see below)
@@ -65,6 +66,15 @@ claim straight out of `index.html` and compares each one to the PDF it names, by
 edit that mis-states a file fails the check instead of a reader finding it. It also asserts `config.js`
 keeps both constants empty (the paid door stays dormant until the rail exists) and that `assets/app.js`
 still requires both halves before it renders a live buy link. Exit `0` = every check matched.
+
+For the discovery surface it additionally asserts, per page: a title / description / self-canonical /
+`og:image` / `twitter:card=summary_large_image`; that every indexable page is listed in `sitemap.xml`
+and every `<loc>` names a file that exists; that no page loads a script, style, image or frame from
+another origin (the machine check behind the `connect-src 'none'` promise — the GitHub `<a href>` is not
+a subresource and is correctly not counted); and that `assets/og-card.png` is 1200×630. The phone guide
+must be linked from the landing page and from a sibling guide. Every one of these was proven to go red
+by mutating the real file (drop the sitemap entry, unlink the page, point `og:image` at a missing card,
+widen the card, add an external script, drop the canonical) and green on the real tree.
 
 ## Regenerating the artifacts
 
