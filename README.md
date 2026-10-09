@@ -52,11 +52,27 @@ Open it over `http://`, not `file://` — the sample loader uses a canvas and a 
     downloads/receipts-sample-free.pdf  real output, free build: first 5 of the 7 receipts, 6 pages, the footer mark on every receipt page
     downloads/how-to-use.pdf            one-page instruction sheet
     samples/receipts/           7 sample receipts with made-up merchants, plus their manifest
-    tools/                      scripts used to build the PDFs and check the output (see Checks below)
+    tools/                      scripts used to build the PDFs, check the output and archive the pages (see Checks below)
+    discovery/wayback-references.json  one archive.org snapshot per public page (tools/archive-pages.py)
     recon/                      internal research, not published
 
 `tools/check-pdf.py` opens a produced PDF and prints page count, page sizes and the text of every
 page, and can render them to PNG. That is how the output was checked rather than eyeballed.
+
+## Discovery
+
+The site is a subpath of a shared host, so a crawler that reads no `robots.txt` at the host root has to
+be told the URLs directly. Three things point at them, none of which needs an account:
+
+- `sitemap.xml` lists the twelve public URLs (landing page, eight guides, three downloads).
+- `tools/indexnow.py` reads that sitemap and POSTs the URL list to the IndexNow endpoints (Bing,
+  Yandex and the engines that share the protocol). A build-time request, not an on-page one, so
+  `connect-src 'none'` is untouched.
+- `tools/archive-pages.py` gives every public page a permanent copy on the **Wayback Machine** — a
+  reference that lives outside this project's own domain. It reads the URLs from `sitemap.xml`, asks
+  archive.org to save each page, and confirms the capture against the CDX index (the
+  `/wayback/available` API lags behind it, so it is reported but not trusted). The result is recorded
+  in `discovery/wayback-references.json`; `--verify` re-checks it without saving anything new.
 
 ## Checks
 
@@ -77,6 +93,12 @@ a subresource and is correctly not counted); and that `assets/og-card.png` is 12
 must be linked from the landing page and from a sibling guide. Every one of these was proven to go red
 by mutating the real file (drop the sitemap entry, unlink the page, point `og:image` at a missing card,
 widen the card, add an external script, drop the canonical) and green on the real tree.
+
+It also asserts that every public page carries a Wayback snapshot: `discovery/wayback-references.json`
+must cover every `<loc>` that is a page, and each entry must point at a real `web.archive.org` snapshot
+whose 14-digit timestamp matches the recorded one and whose status is 200. Proven red by removing a
+page's entry, by pointing an entry at a non-archive host, and by a non-200 status; green on the real
+record. `tools/archive-pages.py --verify` re-checks the same snapshots against archive.org's CDX index.
 
 The cited guides (`how-long-to-keep-receipts.html` for Canada, `how-long-to-keep-records-irs.html` for
 the US) each get their own guard: the page must name its source URL(s), print a `Read YYYY-MM-DD` date

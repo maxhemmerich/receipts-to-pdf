@@ -21,6 +21,7 @@ reviewer finding it.
 """
 import argparse
 import hashlib
+import json
 import os
 import re
 import sys
@@ -65,6 +66,12 @@ IRS_SOURCES = [
 IRS_RULE = ("Generally, you must keep your records that support an item of income, deduction or credit "
             "shown on your tax return until the period of limitations for that tax return runs out.")
 IRS_RULE_2 = "Keep records for 3 years if situations (4), (5), and (6) below do not apply to you."
+
+# The lane's third-party references: an archive.org snapshot of every public page, written by
+# tools/archive-pages.py. This record is what makes the discovery lever real -- a copy of the
+# site that lives outside its own domain. The guard reads it, it does not fetch anything.
+WAYBACK_REFS = os.path.join(ROOT, "discovery", "wayback-references.json")
+SNAP_RE = re.compile(r"^https://web\.archive\.org/web/(\d{14})/")
 
 
 # --------------------------------------------------------------------------- #
@@ -388,6 +395,51 @@ def check_sitemap_covers_pages():
     return failures
 
 
+def _public_pages():
+    """Every HTML page in sitemap.xml -- the pages a crawler is meant to find."""
+    html = open(os.path.join(ROOT, "sitemap.xml"), encoding="utf-8").read()
+    locs = re.findall(r"<loc>\s*([^<]+?)\s*</loc>", html)
+    return [l for l in locs if l.endswith(".html") or l.endswith("/")]
+
+
+def check_wayback_references():
+    """Every public page must carry a third-party Wayback snapshot (tools/archive-pages.py).
+
+    The lane's discovery lever is a reference that lives outside this project's own domain -- a
+    permanent, third-party-hosted copy of each page. This asserts the committed record covers
+    every public page and that each entry points at a real web.archive.org snapshot whose
+    14-digit timestamp matches the recorded one, so a page cannot be added without an archive
+    and an entry cannot be faked at a lookalike URL.
+    """
+    failures = []
+    print("check: every public page has a Wayback snapshot (discovery/wayback-references.json)")
+    if not os.path.exists(WAYBACK_REFS):
+        return ["discovery/wayback-references.json is missing (run tools/archive-pages.py)"]
+    try:
+        db = json.loads(open(WAYBACK_REFS, encoding="utf-8").read())
+    except ValueError as e:
+        return ["discovery/wayback-references.json is not valid JSON: %s" % e]
+    refs = db.get("references") if isinstance(db, dict) else None
+    if not isinstance(refs, dict):
+        return ["discovery/wayback-references.json has no 'references' object"]
+    for page in _public_pages():
+        r = refs.get(page)
+        m = SNAP_RE.match(r.get("snapshot", "")) if isinstance(r, dict) else None
+        ok = bool(r and r.get("statuscode") == "200" and m
+                  and r.get("timestamp") == m.group(1))
+        print("  %-70s : %s" % (page, ok))
+        if not ok:
+            failures.append(
+                "%s has no valid Wayback snapshot in discovery/wayback-references.json" % page)
+    # no entry may point anywhere but archive.org (a lookalike host would be a fake reference)
+    for url, r in refs.items():
+        snap = (r or {}).get("snapshot", "")
+        if not SNAP_RE.match(snap):
+            failures.append("wayback reference for %s is not a web.archive.org snapshot: %s"
+                            % (url, snap))
+    return failures
+
+
 def check_no_external_subresources():
     """No page may load a script/style/image from a non-'self' origin.
 
@@ -631,6 +683,7 @@ def main():
     failures += check_cited_page()
     failures += check_cited_page_irs()
     failures += check_sitemap_covers_pages()
+    failures += check_wayback_references()
     failures += check_no_external_subresources()
     failures += check_og_card()
     if a.served:
