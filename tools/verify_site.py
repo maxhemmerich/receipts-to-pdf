@@ -68,6 +68,13 @@ IRS_RULE = ("Generally, you must keep your records that support an item of incom
             "shown on your tax return until the period of limitations for that tax return runs out.")
 IRS_RULE_2 = "Keep records for 3 years if situations (4), (5), and (6) below do not apply to you."
 
+# The free build's footer mark must carry the tool's own address: the one PDF a free
+# user emails to an accountant is a free build, and the mark on it is the only thing in
+# it that can lead a reader back to the tool. This is the address printed in the mark
+# (a shorter, typeable form of SITE) and the product line above it.
+TOOL_ADDRESS = "maxhemmerich.github.io/receipts-to-pdf"
+FREE_MARK = "Made with ReceiptStack - free version"
+
 # The lane's third-party references: an archive.org snapshot of every public page, written by
 # tools/archive-pages.py. This record is what makes the discovery lever real -- a copy of the
 # site that lives outside its own domain. The guard reads it, it does not fetch anything.
@@ -234,6 +241,50 @@ def check_sample_labels(page_path, file_root, served=False, fetch=None):
     print("check: sample-file labels on %s" % ("the served page" if served else page_path))
     for line in printed:
         print(line)
+    return failures
+
+
+def check_free_mark_carries_address():
+    """The free build's footer mark must carry the tool's own address.
+
+    The one artifact a free user emails to their accountant is a free-build PDF, and the
+    mark printed on every receipt page is the only thing in it that can lead a reader back
+    to the tool. This asserts the address is on every receipt page of the free sample, is
+    absent from the free sample's index page, and is absent (with the mark) from the paid
+    sample -- so a rebuild cannot silently drop the address or leak it into the paid file.
+    """
+    failures = []
+    print("check: the free footer mark carries the tool's address")
+    free = os.path.join(ROOT, "downloads", "receipts-sample-free.pdf")
+    paid = os.path.join(ROOT, "downloads", "receipts-sample.pdf")
+    if not os.path.exists(free):
+        return ["downloads/receipts-sample-free.pdf is missing"]
+    doc = pymupdf.open(free)
+    receipt_pages = with_addr = 0
+    for i, page in enumerate(doc, 1):
+        t = page.get_text()
+        if re.search(r"Receipt\s+\d+\s+of\s+\d+", t):
+            receipt_pages += 1
+            if TOOL_ADDRESS in t and FREE_MARK in t:
+                with_addr += 1
+            else:
+                failures.append(
+                    "free sample page %d: its footer mark does not carry %s"
+                    % (i, TOOL_ADDRESS))
+        elif TOOL_ADDRESS in t:
+            failures.append("free sample page %d: the address is on a non-receipt page" % i)
+    doc.close()
+    print("  free receipt pages   : %d" % receipt_pages)
+    print("  carrying the address : %d/%d" % (with_addr, receipt_pages))
+    if receipt_pages == 0:
+        failures.append("free sample: no receipt page found")
+    if os.path.exists(paid):
+        d2 = pymupdf.open(paid)
+        leak = sum(1 for p in d2 if TOOL_ADDRESS in p.get_text())
+        d2.close()
+        print("  paid sample leaks it : %d page(s)" % leak)
+        if leak:
+            failures.append("the paid sample carries the free mark's address on %d page(s)" % leak)
     return failures
 
 
@@ -734,6 +785,7 @@ def main():
 
     failures = []
     failures += check_sample_labels(a.page, ROOT, served=False)
+    failures += check_free_mark_carries_address()
     failures += check_new_page_indexable()
     failures += check_new_page_linked()
     failures += check_cited_page()

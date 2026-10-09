@@ -49,7 +49,7 @@ Open it over `http://`, not `file://` — the sample loader uses a canvas and a 
     assets/og-card.png          the social card (generated, see below)
     assets/vendor/pdf-lib.min.js  pdf-lib 1.17.1, vendored (MIT, see the LICENSE file beside it)
     downloads/receipts-sample.pdf       real output, unlocked build: 7 receipts, 8 pages, no footer mark
-    downloads/receipts-sample-free.pdf  real output, free build: first 5 of the 7 receipts, 6 pages, the footer mark on every receipt page
+    downloads/receipts-sample-free.pdf  real output, free build: first 5 of the 7 receipts, 6 pages, the footer mark on every receipt page — and that mark carries the tool's own address (maxhemmerich.github.io/receipts-to-pdf)
     downloads/how-to-use.pdf            one-page instruction sheet
     samples/receipts/           7 sample receipts with made-up merchants, plus their manifest
     tools/                      scripts used to build the PDFs, check the output and archive the pages (see Checks below)
@@ -104,6 +104,14 @@ question name is aligned to the question the reader sees. Proven red by renaming
 deleting the visible section, dropping an anchor, and renaming the IRS question; green on the real
 tree. The guard compares question names, not answers: the cited pages print their answers as prose that
 quotes a sentence fetched at build time, so an answer is not a fixed string there.
+
+It also asserts that the free build's footer mark carries the tool's own address: every receipt
+page of `downloads/receipts-sample-free.pdf` must print both the product line and
+`maxhemmerich.github.io/receipts-to-pdf`, the address must not appear on the free sample's index
+page, and the paid sample must carry neither. The one PDF a free user emails to an accountant is
+a free build, so the mark on it is the only thing in it that can lead a reader back to the tool.
+Proven red by swapping in a free sample whose mark carries no address and by putting the paid
+sample in the free slot (no mark at all); green on the real tree.
 
 It also asserts that every public page carries a Wayback snapshot: `discovery/wayback-references.json`
 must cover every `<loc>` that is a page, and each entry must point at a real `web.archive.org` snapshot

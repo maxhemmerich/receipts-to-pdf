@@ -493,8 +493,15 @@ function buildPdf(items, opts) {
         var mt = clean(mid);
         p.drawText(mt, { x: (PW - font.widthOfTextAtSize(mt, 8.5)) / 2, y: footY, size: 8.5, font: font, color: rgb(GREY) });
         if (mark) {
+          /* The free build's mark carries the tool's own address, so the one file a
+             free user emails to their accountant can lead back to the tool. Two
+             right-aligned lines: the product name sits above, and the address takes
+             the receipt's own footer line (the date/amount stays centred beside it).
+             A paid build draws neither line, so its bytes are unchanged. */
           var mr = clean('Made with ReceiptStack \u2014 free version');
-          p.drawText(mr, { x: PW - M - font.widthOfTextAtSize(mr, 8.5), y: footY, size: 8.5, font: font, color: rgb(GREY) });
+          p.drawText(mr, { x: PW - M - font.widthOfTextAtSize(mr, 8.5), y: footY + 14, size: 8.5, font: font, color: rgb(GREY) });
+          var murl = clean('maxhemmerich.github.io/receipts-to-pdf');
+          p.drawText(murl, { x: PW - M - font.widthOfTextAtSize(murl, 8.5), y: footY, size: 8.5, font: font, color: rgb(GREY) });
         }
         if (it.note) {
           p.drawText(fit(it.note, font, 9.5, PW - 2 * M), { x: M, y: PH - M + 4, size: 9.5, font: font, color: rgb(GREY) });
