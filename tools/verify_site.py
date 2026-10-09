@@ -79,6 +79,11 @@ IRS_RULE_2 = "Keep records for 3 years if situations (4), (5), and (6) below do 
 TOOL_ADDRESS = "maxhemmerich.github.io/receipts-to-pdf"
 FREE_MARK = "Made with ReceiptStack - free version"
 
+# The CSV ends with a credit line (assets/app.js CSV_ROUTE) carrying the same route back as the
+# free build's footer mark, so the other artifact a free user can forward is not a dead end. The
+# landing page must say the CSV ends with it.
+CSV_ROUTE_PAGE_PHRASE = "a last line naming the tool"
+
 # The lane's third-party references: an archive.org snapshot of every public page, written by
 # tools/archive-pages.py. This record is what makes the discovery lever real -- a copy of the
 # site that lives outside its own domain. The guard reads it, it does not fetch anything.
@@ -334,6 +339,46 @@ def check_howto_sheet_leads_back(path=None):
 
     print("  pages=%d  address=%s  price=$%s  link=%s"
           % (pages, TOOL_ADDRESS in text, price, bool(site) and site in links))
+    return failures
+
+
+def check_csv_carries_route():
+    """The CSV a free user forwards must lead back to the tool, at the tool's own price.
+
+    NEXT #25: the free build's PDF carries its address in the footer mark, but the CSV -- the
+    other artifact a free user can email on -- carried nothing, so a forwarded spreadsheet was a
+    dead end. csvFor() now appends a credit line built in assets/app.js as CSV_ROUTE, from
+    FREE_LIMIT and priceUsd (which reads PRICE_USD from config.js) plus the address literal, so
+    the line cannot drift from the page's price or cap. This reads that one named constant and
+    the row that emits it out of the source, and asserts the landing page says the CSV ends with
+    a line naming the tool.
+    """
+    failures = []
+    print("check: the CSV leads back to the tool")
+    js = open(os.path.join(ROOT, "assets", "app.js"), encoding="utf-8").read()
+    m = re.search(r"var\s+CSV_ROUTE\s*=\s*([^\n]*);", js)
+    rhs = m.group(1) if m else None
+    if rhs is None:
+        failures.append("assets/app.js: no CSV_ROUTE credit line is defined for the CSV")
+    else:
+        if TOOL_ADDRESS not in rhs:
+            failures.append("assets/app.js CSV_ROUTE does not carry the tool's address (%s)" % TOOL_ADDRESS)
+        if "priceUsd" not in rhs:
+            failures.append("assets/app.js CSV_ROUTE does not take the price from priceUsd (config.js)")
+        if "FREE_LIMIT" not in rhs:
+            failures.append("assets/app.js CSV_ROUTE does not take the free cap from FREE_LIMIT")
+    emitted = re.search(r"rows\.push\(\s*\[\s*''\s*,\s*''\s*,\s*CSV_ROUTE", js) is not None
+    if not emitted:
+        failures.append("assets/app.js: csvFor() no longer appends CSV_ROUTE to the CSV")
+    page = open(os.path.join(ROOT, "index.html"), encoding="utf-8").read()
+    said = CSV_ROUTE_PAGE_PHRASE in page
+    if not said:
+        failures.append("index.html no longer says the CSV ends with a line naming the tool")
+    print("  address in credit   : %s" % (TOOL_ADDRESS in (rhs or "")))
+    print("  price from config   : %s" % ("priceUsd" in (rhs or "")))
+    print("  cap from FREE_LIMIT : %s" % ("FREE_LIMIT" in (rhs or "")))
+    print("  csvFor emits it     : %s" % emitted)
+    print("  page says so        : %s" % said)
     return failures
 
 
@@ -859,6 +904,7 @@ def main():
     failures += check_guide_sample_counts()
     failures += check_free_mark_carries_address()
     failures += check_howto_sheet_leads_back()
+    failures += check_csv_carries_route()
     failures += check_new_page_indexable()
     failures += check_new_page_linked()
     failures += check_cited_page()

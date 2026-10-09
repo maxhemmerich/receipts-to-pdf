@@ -15,6 +15,13 @@ var unlockCode  = (typeof UNLOCK_CODE  === 'string') ? UNLOCK_CODE.trim()  : '';
 var priceUsd    = (typeof PRICE_USD === 'number' && isFinite(PRICE_USD)) ? PRICE_USD : 9;
 /* ========================================================================== */
 
+/* CSV_ROUTE — the credit line the downloaded CSV ends with. The CSV is the other artifact a
+   free user can forward (the PDF's footer mark is the one a free user emails), so it carries
+   the same route back to the tool: the product, what the free tier covers, the price and the
+   address. The price comes from priceUsd (config.js) and the cap from FREE_LIMIT, so the line
+   cannot drift from what the page states. */
+var CSV_ROUTE = 'ReceiptStack \u2014 free for up to ' + FREE_LIMIT + ' receipts per PDF; $' + priceUsd + ' once removes the limit and the footer mark \u2014 maxhemmerich.github.io/receipts-to-pdf';
+
 var LS_KEY = 'receiptstack.unlocked';
 var PDFLib = window.PDFLib;
 
@@ -189,6 +196,10 @@ function csvFor(items) {
                amts[i] === null ? '' : amts[i].toFixed(2)]);
   });
   rows.push(['', '', label, entered === 0 ? '' : total.toFixed(2)]);
+  /* the route back to the tool, on the CSV's own last line -- the same address the free
+     build's footer mark carries, so a forwarded spreadsheet leads a reader to the page
+     where the free tool and the $9 unlock live. */
+  rows.push(['', '', CSV_ROUTE, '']);
 
   return '\uFEFF' + rows.map(function (r) {
     return r.map(csvCell).join(',');
@@ -916,8 +927,8 @@ function build() {
 
     var hint = document.createElement('p');
     hint.className = 'dim';
-    hint.textContent = 'The CSV is the same rows as the index page \u2014 one line per receipt ' +
-      'plus the total \u2014 for a spreadsheet.';
+    hint.textContent = 'The CSV is the same rows as the index page \u2014 one line per receipt, ' +
+      'the total, and a last line naming the tool \u2014 for a spreadsheet.';
     res.appendChild(hint);
 
     res.hidden = false;
