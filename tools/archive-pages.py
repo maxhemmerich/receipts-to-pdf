@@ -126,7 +126,7 @@ def snapshot_url(url, ts):
 
 
 def spn_save(url):
-    """Ask the Wayback Machine to Save Page Now. Returns a short status string."""
+    """Ask the Wayback Machine to Save Page Now. Returns "ok", or why it did not."""
     code, body = http_get("https://web.archive.org/save/%s" % url, timeout=150)
     text = (body or b"").decode("utf-8", "replace")
     if is_offline(body):
@@ -135,7 +135,11 @@ def spn_save(url):
         return "rate-limited"
     if code is None:
         return "error"
-    return "http %s" % code
+    if code == 429:
+        return "rate-limited"
+    if code >= 400:
+        return "http %s" % code
+    return "ok"
 
 
 # --------------------------------------------------------------------------- #
@@ -173,20 +177,24 @@ def archive_one(url, refs, save=True, refresh=False):
 
     With refresh=True a capture is re-saved even when one already exists, so a
     page whose content changed after its capture is re-archived instead of the
-    record silently keeping the older revision.
+    record silently keeping the older revision. A refresh only counts when it
+    yields a capture NEWER than the one already recorded: a rate-limited save
+    must not be read as a successful refresh, and the old capture is kept (and
+    reported as stale) rather than dressed up as fresh.
     """
-    have = None if refresh else cdx_latest(url)
-    if have:
-        ts, sc = have
+    prev = cdx_latest(url)  # the capture that exists right now, if any
+    if prev and not refresh:
+        ts, sc = prev
         _record(url, refs, ts, sc, url)
         return "have"
 
     if not save:
         # the plain URL may be wedged; accept the recorded variant, same as a save would
-        v = cdx_latest(url + "?v=1")
+        v = prev or cdx_latest(url + "?v=1")
         if v:
             ts, sc = v
-            _record(url, refs, ts, sc, url + "?v=1", "captured under '?v=1' (same static bytes)")
+            note = None if prev else "captured under '?v=1' (same static bytes)"
+            _record(url, refs, ts, sc, url if prev else url + "?v=1", note)
             return "have"
         print("  [none] %s  (no 200 capture)" % url)
         return "none"
@@ -195,22 +203,28 @@ def archive_one(url, refs, save=True, refresh=False):
     # "not archived" page and never fetches the origin. A '?v=1' variant is the same static
     # bytes under a different key, so it is a faithful fallback -- and it is recorded with a
     # note, so the record never pretends the snapshot was taken at the bare URL.
+    want_newer_than = prev[0] if (refresh and prev) else None
     variants = ((url, None), (url + "?v=1", "captured under '?v=1' (same static bytes)"))
     for target, note in variants:
-        for _ in range(2):
+        for _ in range(3):
             st = spn_save(target)
             print("  [save] %s  -> %s" % (target, st))
-            if st in ("offline", "rate-limited", "error"):
-                time.sleep(45 if st == "rate-limited" else 30)
+            if st != "ok":
+                time.sleep(60 if st == "rate-limited" else 30)
                 continue
             for _ in range(6):
                 time.sleep(10)
                 have = cdx_latest(target)
-                if have:
+                if have and (want_newer_than is None or have[0] > want_newer_than):
                     ts, sc = have
                     _record(url, refs, ts, sc, target, note)
                     return "saved"
             break
+    if prev:
+        ts, sc = prev
+        _record(url, refs, ts, sc, url)
+        print("  [STALE] %s  (refresh did not take; the record still points at %s)" % (url, ts))
+        return "stale"
     print("  [FAIL] %s  (no 200 capture yet)" % url)
     return "fail"
 
@@ -236,20 +250,34 @@ def main():
 
     print("check: archive captures for %d public URL(s) (%s)"
           % (len(urls), "verify" if a.verify else ("refresh" if a.refresh else "save")))
+    statuses = {}
     for i, url in enumerate(urls):
-        archive_one(url, refs, save=not a.verify, refresh=a.refresh and not a.verify)
+        statuses[url] = archive_one(url, refs, save=not a.verify, refresh=a.refresh and not a.verify)
         save_db(db)  # write after every URL so a timeout never loses progress
         if not a.verify and i < len(urls) - 1:
             time.sleep(SLEEP_BETWEEN_SAVES)
 
     missing = [u for u in urls if u not in refs]
+    stale = [u for u in urls if statuses.get(u) == "stale"]
+    failed = [u for u in urls if statuses.get(u) == "fail"]
     print()
-    if missing:
-        print("INCOMPLETE — %d URL(s) still have no 200 capture:" % len(missing))
-        for u in missing:
-            print("  - " + u)
+    if missing or stale or failed:
+        if missing:
+            print("INCOMPLETE — %d URL(s) still have no 200 capture:" % len(missing))
+            for u in missing:
+                print("  - " + u)
+        if stale:
+            print("STALE — %d URL(s) kept an OLDER capture; the refresh did not take "
+                  "(archive.org rate-limits anonymous saves -- re-run later):" % len(stale))
+            for u in stale:
+                print("  - %s  (still %s)" % (u, refs[u]["timestamp"]))
+        if failed:
+            print("FAILED — %d URL(s) have no 200 capture:" % len(failed))
+            for u in failed:
+                print("  - " + u)
         sys.exit(1)
-    print("OK — every URL has a 200 capture on the Wayback Machine.")
+    print("OK — every URL has a 200 capture on the Wayback Machine%s."
+          % (" (all re-saved this run)" if a.refresh else ""))
     for u in urls:
         r = refs[u]
         av = availability(u)

@@ -74,7 +74,8 @@ be told the URLs directly. Three things point at them, none of which needs an ac
   `/wayback/available` API lags behind it, so it is reported but not trusted). The result is recorded
   in `discovery/wayback-references.json`; `--verify` re-checks it without saving anything new, and
   `--refresh` re-saves every URL — the captures are taken at a point in time, so a page whose content
-  changed after its capture is re-archived instead of the record silently keeping the older revision.
+  changed after its capture is re-archived; a refresh only counts when it yields a capture *newer* than
+  the one on record, and a refresh that does not take is reported rather than recorded as fresh.
 
 ## Checks
 
