@@ -44,6 +44,17 @@ GUIDES = [
     "scan-receipts-to-pdf-on-a-phone.html",
 ]
 NEW_PAGE = "scan-receipts-to-pdf-on-a-phone.html"
+# The cited guide: answers "how long do I have to keep receipts?" by quoting the CRA. It must name
+# each source URL and print the sentences verbatim, so a rewrite cannot quietly drop or alter a quote.
+CRA_PAGE = "how-long-to-keep-receipts.html"
+CRA_SOURCES = [
+    "https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/about-your-tax-return/long-should-you-keep-your-income-tax-records.html",
+    "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/keeping-records/where-keep-your-records-long-request-permission-destroy-them-early.html",
+    "https://www.canada.ca/en/revenue-agency/services/forms-publications/publications/rc188/keeping-records.html",
+]
+CRA_RULE = ("Keep your records for six years from the end of the last tax year they relate to, "
+            "unless you have permission from the CRA to destroy them earlier.")
+CRA_RULE_IND = "Keep your tax documents and records for at least six years."
 
 
 # --------------------------------------------------------------------------- #
@@ -294,7 +305,7 @@ def check_served_page_matches_tree(page_path, fetch):
 
 
 def _html_files():
-    return ["index.html"] + GUIDES
+    return ["index.html"] + GUIDES + [CRA_PAGE]
 
 
 def _loc_for(page):
@@ -432,6 +443,96 @@ def check_served_new_page(fetch):
     return failures
 
 
+def check_cited_page():
+    """The CRA guide: indexable, self-canonical, names every source and quotes it verbatim.
+
+    This guards the one thing that made the page honest -- that its quotations come from the named
+    canada.ca pages, with the date they were read printed beside them, and that its own price/cap
+    figures still match config.js and assets/app.js.
+    """
+    failures = []
+    p = os.path.join(ROOT, CRA_PAGE)
+    print("check: cited guide is indexable and carries its sources (%s)" % CRA_PAGE)
+    if not os.path.exists(p):
+        return ["%s is missing" % CRA_PAGE]
+    html = open(p, encoding="utf-8").read()
+    url = "%s/%s" % (SITE, CRA_PAGE)
+    rules = [
+        ("title", r"<title>[^<]*how long do i have to keep receipts[^<]*</title>"),
+        ("description", r'<meta name="description" content="[^"]{80,}"'),
+        ("canonical", re.escape('<link rel="canonical" href="%s">' % url)),
+        ("og:url", re.escape('<meta property="og:url" content="%s">' % url)),
+        ("og:image", re.escape('<meta property="og:image" content="%s/assets/og-card.png">' % SITE)),
+        ("twitter:card", r'<meta name="twitter:card" content="summary_large_image">'),
+        ("links the tool", r'href="\./(?:#tool)?"'),
+    ]
+    for name, pat in rules:
+        ok = re.search(pat, html, re.I) is not None
+        print("  %-14s : %s" % (name, ok))
+        if not ok:
+            failures.append("%s: %s is missing or wrong" % (CRA_PAGE, name))
+
+    for src in CRA_SOURCES:
+        ok = src in html
+        print("  source         : %s %s" % ("ok " if ok else "MISSING", src[:64]))
+        if not ok:
+            failures.append("%s does not name the source %s" % (CRA_PAGE, src))
+    for sentence in (CRA_RULE, CRA_RULE_IND):
+        ok = sentence in html
+        print("  quote          : %s %s" % ("ok " if ok else "MISSING", sentence[:56]))
+        if not ok:
+            failures.append("%s does not quote verbatim: %s" % (CRA_PAGE, sentence[:56]))
+    readstamp = re.search(r"Read \d{4}-\d{2}-\d{2}", html) is not None
+    print("  read date      : %s" % readstamp)
+    if not readstamp:
+        failures.append("%s: no 'Read YYYY-MM-DD' date stamp beside the quotes" % CRA_PAGE)
+
+    # the page's own price and free cap must not drift from config.js / assets/app.js
+    cfg = open(os.path.join(ROOT, "config.js"), encoding="utf-8").read()
+    js = open(os.path.join(ROOT, "assets", "app.js"), encoding="utf-8").read()
+    pm = re.search(r"PRICE_USD\s*=\s*(\d+)", cfg)
+    cm = re.search(r"FREE_LIMIT\s*=\s*(\d+)", js)
+    price_ok = bool(pm and ("$%s" % pm.group(1)) in html)
+    cap_ok = bool(cm and ("up to %s receipts" % cm.group(1)) in html)
+    print("  price $%s      : %s" % (pm.group(1) if pm else "?", price_ok))
+    print("  free cap %s     : %s" % (cm.group(1) if cm else "?", cap_ok))
+    if not price_ok:
+        failures.append("%s: the $%s price (config.js PRICE_USD) is not printed on the page"
+                        % (CRA_PAGE, pm.group(1) if pm else "?"))
+    if not cap_ok:
+        failures.append("%s: the free cap %s (app.js FREE_LIMIT) is not stated on the page"
+                        % (CRA_PAGE, cm.group(1) if cm else "?"))
+
+    # reachable: linked from the landing page and from a sibling guide
+    landing = open(os.path.join(ROOT, "index.html"), encoding="utf-8").read()
+    from_landing = CRA_PAGE in landing
+    siblings = [g for g in GUIDES
+                if CRA_PAGE in open(os.path.join(ROOT, g), encoding="utf-8").read()]
+    print("  linked from landing : %s" % from_landing)
+    print("  linked from guides  : %d/%d" % (len(siblings), len(GUIDES)))
+    if not from_landing:
+        failures.append("index.html does not link %s" % CRA_PAGE)
+    if not siblings:
+        failures.append("no sibling guide links %s" % CRA_PAGE)
+    return failures
+
+
+def check_served_page(fetch, page):
+    """The served copy of `page` must be byte-identical to the tree copy being shipped."""
+    failures = []
+    raw = fetch(page)
+    local = open(os.path.join(ROOT, page), "rb").read()
+    print("check: served %s == tree" % page)
+    if raw is None:
+        failures.append("could not fetch the served %s" % page)
+    elif raw != local:
+        failures.append("served %s differs from the tree copy (served %d, tree %d bytes)"
+                        % (page, len(raw), len(local)))
+    else:
+        print("  served == tree : True (%d bytes)" % len(local))
+    return failures
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--served", action="store_true", help="also fetch the live site and compare")
@@ -443,6 +544,7 @@ def main():
     failures += check_sample_labels(a.page, ROOT, served=False)
     failures += check_new_page_indexable()
     failures += check_new_page_linked()
+    failures += check_cited_page()
     failures += check_sitemap_covers_pages()
     failures += check_no_external_subresources()
     failures += check_og_card()
@@ -450,6 +552,7 @@ def main():
         fetch = make_fetcher()
         failures += check_served_page_matches_tree(a.page, fetch)
         failures += check_served_new_page(fetch)
+        failures += check_served_page(fetch, CRA_PAGE)
         failures += check_sample_labels(a.page, ROOT, served=True, fetch=fetch)
     failures += check_config()
     failures += check_paid_door_atomic()

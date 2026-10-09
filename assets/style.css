@@ -35,6 +35,34 @@ a:hover { color: var(--ink); }
 
 .dim { color: var(--muted); }
 
+/* ---------- quotations and their source lines (cited guide pages) ---------- */
+
+blockquote {
+  margin: 18px 0;
+  padding: 2px 0 2px 16px;
+  border-left: 3px solid var(--line-2);
+  max-width: 64ch;
+  font: 400 18px/1.5 var(--serif);
+  color: var(--ink);
+}
+
+.cite {
+  margin: 6px 0 18px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  max-width: 74ch;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.cite a { color: var(--muted); }
+.cite a:hover { color: var(--ink); }
+
+/* a source list can carry a long URL; let it wrap inside the column on a phone */
+.block ul { padding-left: 18px; }
+.block ul li { margin: 0 0 10px; }
+.block ul a { overflow-wrap: anywhere; word-break: break-word; }
+
 /* ---------- top bar ---------- */
 
 .bar {
