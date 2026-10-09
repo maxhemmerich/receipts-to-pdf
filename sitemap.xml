@@ -25,6 +25,18 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://maxhemmerich.github.io/receipts-to-pdf/expense-report-with-receipts.html</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://maxhemmerich.github.io/receipts-to-pdf/multiple-receipts-one-page-pdf.html</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://maxhemmerich.github.io/receipts-to-pdf/downloads/receipts-sample.pdf</loc>
     <lastmod>2026-10-07</lastmod>
     <priority>0.5</priority>

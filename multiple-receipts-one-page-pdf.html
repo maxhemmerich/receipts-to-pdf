@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<title>Multiple receipts in one PDF — one page per receipt | ReceiptStack</title>
+<meta name="description" content="Put a pile of receipt photos into one PDF: the whole stack in a single file, each receipt on its own page, under a cover index that lists and totals them. Not several receipts tiled onto one sheet — one page per receipt so each stays readable. Runs in your browser — no upload, no account, free for up to 5 receipts.">
+<link rel="canonical" href="https://maxhemmerich.github.io/receipts-to-pdf/multiple-receipts-one-page-pdf.html">
+<meta name="theme-color" content="#f4f1e9">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ReceiptStack">
+<meta property="og:title" content="Multiple receipts in one PDF">
+<meta property="og:description" content="The whole stack in a single PDF: a cover index that lists and totals every receipt, then one receipt per page. In your browser: no upload, no account, free for up to 5 receipts.">
+<meta property="og:url" content="https://maxhemmerich.github.io/receipts-to-pdf/multiple-receipts-one-page-pdf.html">
+<meta property="og:image" content="https://maxhemmerich.github.io/receipts-to-pdf/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The ReceiptStack index page: seven receipts listed with dates and amounts, total $712.14">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Multiple receipts in one PDF">
+<meta name="twitter:description" content="A cover index that lists and totals every receipt, then one receipt per page — all in a single PDF. No upload, no account.">
+<meta name="twitter:image" content="https://maxhemmerich.github.io/receipts-to-pdf/assets/og-card.png">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://maxhemmerich.github.io/receipts-to-pdf/#app",
+      "name": "ReceiptStack",
+      "url": "https://maxhemmerich.github.io/receipts-to-pdf/",
+      "description": "Turns photos of paper receipts into one dated, indexed PDF: a cover index in date order with a total, then one receipt per page. Runs entirely in the browser — no upload, no account, no server.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any device with a modern web browser",
+      "featureList": [
+        "One receipt per page, nothing cropped",
+        "Cover index in date order with a total for the whole batch",
+        "Dates read from the filename when they are in there",
+        "Your photos never leave your browser"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://maxhemmerich.github.io/receipts-to-pdf/multiple-receipts-one-page-pdf.html#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Can I fit several receipts onto one page?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No — this tool gives each receipt its own page. Several receipts shrunk onto one sheet is the one thing a receipt file cannot afford: the totals, the merchant and the tax line are the first things to become unreadable. The compact single-sheet form here is the CSV of the index rows; the PDF is one full page per receipt."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do the receipts have to be in order before I start?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. A batch is sorted by the date each receipt carries before the PDF is built, so dropping a pile in any order still gives you a PDF that reads oldest to newest."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How many receipts can I put in one PDF?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Free for a PDF of up to 5 receipts, cover index and totals included, with no account and no email. Above that, a one-time unlock removes the limit. The result tells you how many receipts were left out."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do my receipts get sent to a website?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. There is no upload and no server to upload to. The page ships a content-security policy that blocks every network request, so the photos are read and the PDF is assembled in your own browser tab."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<header class="bar">
+  <span class="brand">ReceiptStack</span>
+  <nav>
+    <a href="./">The tool</a>
+    <a href="./#sample">Sample output</a>
+    <a href="./#privacy">Privacy</a>
+  </nav>
+</header>
+
+<main>
+
+  <p class="eyebrow">Guide</p>
+  <h1>Multiple receipts in one PDF</h1>
+  <p class="lede">If you have a pile of receipt photos and want them gathered into a single file, this
+  does it: the whole stack becomes one PDF, opening with a cover page that lists every receipt in date
+  order with its amount and a total, then a full page for each receipt behind it. It happens in the
+  browser tab you already have open.</p>
+  <p><a href="./#tool">Open the tool</a> &middot; <a href="downloads/receipts-sample.pdf">see a real
+  output first</a> &middot; <a href="combine-receipt-photos-into-one-pdf.html">combine receipt photos
+  into one PDF</a> &middot; <a href="expense-report-with-receipts.html">an expense report with the
+  receipts</a></p>
+
+  <section class="block">
+    <h2>One PDF, or one page?</h2>
+    <p>There are two things this phrase can mean, and they are not the same.</p>
+    <p>The first is <b>all of my receipts in one PDF file</b> &mdash; one thing to send, instead of a
+    camera roll of images. That is exactly what this tool does.</p>
+    <p>The second is <b>several receipts fitted onto a single sheet</b>. This tool does not do that:
+    it gives each receipt its own page. A receipt is the evidence, and the numbers that matter on it
+    &mdash; the merchant, the total, the tax line &mdash; are the first things to become unreadable
+    when four are shrunk onto one sheet. One page per receipt keeps every page readable and prints at
+    full width. If what you actually want is the compact single-sheet form, the tool also downloads
+    the same rows as a CSV.</p>
+  </section>
+
+  <section class="block">
+    <h2>What is in the file</h2>
+    <dl class="facts">
+      <dt>Cover index</dt>
+      <dd>Every receipt in date order with its date, note and amount, then a total for the batch. On a
+      long batch the index continues onto a second page.</dd>
+      <dt>One receipt per page</dt>
+      <dd>Each photo is fitted to the page and centred. Nothing is cropped or cut off.</dd>
+      <dt>A footer on every page</dt>
+      <dd>Which receipt it is (4 of 9), its date and its amount &mdash; so the pages survive being
+      printed and shuffled on a desk.</dd>
+      <dt>The same rows as a CSV</dt>
+      <dd>One line per receipt plus the total, so the list opens straight in Excel, Numbers or
+      Sheets.</dd>
+      <dt>A file you can email</dt>
+      <dd>Photos are resized to 2200 pixels on the long edge, so a stack of receipts stays a few
+      megabytes instead of forty.</dd>
+    </dl>
+  </section>
+
+  <section class="block">
+    <h2>Doing it, step by step</h2>
+    <dl class="facts">
+      <dt>1. Put the photos in</dt>
+      <dd>Drop them on the tool page, or click <i>choose files</i>. JPG, PNG, WebP and GIF. A file
+      that is not a photo is named in a <i>Skipped:</i> line and the rest of the batch still
+      builds.</dd>
+      <dt>2. Check the list</dt>
+      <dd>Each photo gets a row: a note, a date, an amount. Where the date came out of the filename
+      the row says so; where it could not, you type it in. Move a row with the arrows, turn a
+      sideways photo with the &#8635; button, remove a mistake with the &#215;.</dd>
+      <dt>3. Build it</dt>
+      <dd>Give the PDF a title if you want one, pick Letter or A4, and press <i>Build the PDF</i>. The
+      download link appears with the result: how many receipts, how many pages, how big, and the
+      total.</dd>
+    </dl>
+  </section>
+
+  <section class="block">
+    <h2>Nothing gets uploaded</h2>
+    <p>Receipts carry your card number, your address and what you buy. There is no server here to send
+    them to &mdash; no backend, no API key, no analytics. The tool page carries a content-security
+    policy whose <span class="dim">connect-src 'none'</span> directive blocks every network request,
+    so it could not upload your photos even if a bug tried to. The PDF and the CSV are assembled by
+    the JavaScript already running in the tab. The full source is on
+    <a href="https://github.com/maxhemmerich/receipts-to-pdf">GitHub</a>.</p>
+  </section>
+
+  <section class="block">
+    <h2>What it costs</h2>
+    <p>Free for a PDF of up to <b>5 receipts</b>: the cover index, the totals, the PDF, the CSV and
+    the download are all included, with no account and no email. Above that, a one-time unlock removes
+    the limit and the small footer mark. The tool page states whether checkout is connected yet
+    &mdash; while it is not, nothing on this site can take money and the free version works fully.</p>
+  </section>
+
+  <section class="block">
+    <h2>Questions</h2>
+    <dl class="facts">
+      <dt>Can I fit several receipts onto one page?</dt>
+      <dd>No &mdash; this tool gives each receipt its own page. Several receipts shrunk onto one sheet
+      is the one thing a receipt file cannot afford: the totals, the merchant and the tax line are the
+      first things to become unreadable. The compact single-sheet form here is the CSV of the index
+      rows; the PDF is one full page per receipt.</dd>
+      <dt>Do the receipts have to be in order before I start?</dt>
+      <dd>No. A batch is sorted by the date each receipt carries before the PDF is built, so dropping
+      a pile in any order still gives you a PDF that reads oldest to newest.</dd>
+      <dt>How many receipts can I put in one PDF?</dt>
+      <dd>Free for a PDF of up to 5 receipts, cover index and totals included, with no account and no
+      email. Above that, a one-time unlock removes the limit. The result tells you how many receipts
+      were left out.</dd>
+      <dt>Do my receipts get sent to a website?</dt>
+      <dd>No. There is no upload and no server to upload to. The page ships a content-security policy
+      that blocks every network request, so the photos are read and the PDF is assembled in your own
+      browser tab.</dd>
+    </dl>
+  </section>
+
+  <footer class="foot">
+    <p><a href="./">ReceiptStack</a> &mdash; one page, no backend. <a href="https://github.com/maxhemmerich/receipts-to-pdf">Source</a>.</p>
+    <p class="dim">Not tax advice. This tool puts your receipts in one file; what you claim is your call and your accountant&rsquo;s.</p>
+  </footer>
+
+</main>
+
+</body>
+</html>

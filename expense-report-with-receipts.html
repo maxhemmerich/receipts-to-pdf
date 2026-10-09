@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<title>Expense report with receipts — one PDF, every expense listed | ReceiptStack</title>
+<meta name="description" content="An expense report is a dated list of what you spent with the receipts behind it. Drop the receipt photos in, check the dates and amounts, and download one PDF: a cover page listing every expense in date order with a total, then each receipt on its own page. Runs in your browser — nothing is uploaded, free for up to 5 receipts.">
+<link rel="canonical" href="https://maxhemmerich.github.io/receipts-to-pdf/expense-report-with-receipts.html">
+<meta name="theme-color" content="#f4f1e9">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ReceiptStack">
+<meta property="og:title" content="Expense report with the receipts attached">
+<meta property="og:description" content="One PDF: a cover page listing every expense in date order with a total, then each receipt on its own page. In your browser: no upload, no account, free for up to 5 receipts.">
+<meta property="og:url" content="https://maxhemmerich.github.io/receipts-to-pdf/expense-report-with-receipts.html">
+<meta property="og:image" content="https://maxhemmerich.github.io/receipts-to-pdf/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The ReceiptStack index page: seven receipts listed with dates and amounts, total $712.14">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Expense report with the receipts attached">
+<meta name="twitter:description" content="A cover page listing every expense in date order with a total, then each receipt on its own page — one PDF. No upload, no account.">
+<meta name="twitter:image" content="https://maxhemmerich.github.io/receipts-to-pdf/assets/og-card.png">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://maxhemmerich.github.io/receipts-to-pdf/#app",
+      "name": "ReceiptStack",
+      "url": "https://maxhemmerich.github.io/receipts-to-pdf/",
+      "description": "Turns photos of paper receipts into one dated, indexed PDF: a cover index in date order with a total, then one receipt per page. Runs entirely in the browser — no upload, no account, no server.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any device with a modern web browser",
+      "featureList": [
+        "One receipt per page, nothing cropped",
+        "Cover index in date order with a total for the whole batch",
+        "Dates read from the filename when they are in there",
+        "Your photos never leave your browser"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://maxhemmerich.github.io/receipts-to-pdf/expense-report-with-receipts.html#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is this an expense report template?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It is the filled version rather than a blank one. You bring the receipts; the tool lists them in date order, with the amount and a note for each, on a cover page that totals the batch, and attaches every receipt behind it. The cover page is the expense report — its rows are the lines, its total is the total."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I get the expense list into a spreadsheet?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. After a build, the same rows download as a CSV — one line per receipt plus the total — so they open straight in Excel, Numbers or Sheets if the report is wanted as a spreadsheet instead of a PDF."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do my receipts get sent to a website?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. There is no upload and no server to upload to. The page ships a content-security policy that blocks every network request, so the photos are read and the PDF is assembled in your own browser tab."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How many receipts can I put in one report?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Free for a PDF of up to 5 receipts, cover index and totals included, with no account and no email. The result tells you how many receipts were left out."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it decide what I can claim back?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. It builds the file. Which expenses are reimbursable, and at what rate, is between you and whoever pays the report."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<header class="bar">
+  <span class="brand">ReceiptStack</span>
+  <nav>
+    <a href="./">The tool</a>
+    <a href="./#sample">Sample output</a>
+    <a href="./#privacy">Privacy</a>
+  </nav>
+</header>
+
+<main>
+
+  <p class="eyebrow">Guide</p>
+  <h1>Make an expense report with the receipts attached</h1>
+  <p class="lede">An expense report is two things handed over together: a list of what you spent &mdash;
+  dated, with a total &mdash; and the receipts that back it up. This turns the photos of those receipts
+  into exactly that file: one PDF whose first page lists every expense in date order with its amount
+  and a total for the batch, followed by each receipt on its own page. It happens in the browser tab
+  you already have open.</p>
+  <p><a href="./#tool">Open the tool</a> &middot; <a href="downloads/receipts-sample.pdf">see a real
+  output first</a> &middot; <a href="combine-receipt-photos-into-one-pdf.html">combine receipt photos
+  into one PDF</a> &middot; <a href="how-to-organize-receipts-for-taxes.html">for taxes</a> &middot;
+  <a href="reimbursement-claim-pdf.html">for a reimbursement claim</a></p>
+
+  <section class="block">
+    <h2>A report is a list plus the paper behind it</h2>
+    <p>The words &ldquo;expense report&rdquo; hide a simple shape: rows of what you spent, each with a
+    date and an amount, a total at the bottom, and the receipts those rows describe. The rows without
+    the receipts are just an assertion; the receipts without the rows are a shoebox. Whoever the report
+    goes to &mdash; an employer, a client, an accountant &mdash; wants both in one file they can open on
+    the first try.</p>
+    <p>This page is not a blank template you fill in by hand. It is the filled version: you supply the
+    receipts as photos, and the tool lists them, dates them, and adds them up. The report is the first
+    page it builds.</p>
+  </section>
+
+  <section class="block">
+    <h2>What the report contains</h2>
+    <dl class="facts">
+      <dt>Cover index (the report itself)</dt>
+      <dd>Every receipt in date order with its date, note and amount, then a total for the batch. On a
+      long report the index continues onto a second page.</dd>
+      <dt>One receipt per page</dt>
+      <dd>Each photo is fitted to the page and centred. Nothing is cropped or cut off, so every amount
+      the report rests on is readable in the file.</dd>
+      <dt>A footer on every page</dt>
+      <dd>Which receipt it is (4 of 9), its date and its amount &mdash; so the pages survive being
+      printed and shuffled on someone&rsquo;s desk.</dd>
+      <dt>The same rows as a CSV</dt>
+      <dd>The index rows also download as a CSV &mdash; one line per receipt plus the total &mdash; so
+      the list opens straight in a spreadsheet if the report is wanted that way.</dd>
+      <dt>A file you can email</dt>
+      <dd>Photos are resized to 2200 pixels on the long edge, so a stack of receipts stays a few
+      megabytes instead of forty.</dd>
+    </dl>
+  </section>
+
+  <section class="block">
+    <h2>Doing it, step by step</h2>
+    <dl class="facts">
+      <dt>1. Put the photos in</dt>
+      <dd>Drop them on the tool page, or click <i>choose files</i>. JPG, PNG, WebP and GIF. A file
+      that is not a photo is named in a <i>Skipped:</i> line and the rest of the batch still
+      builds.</dd>
+      <dt>2. Check the list</dt>
+      <dd>Each photo gets a row: a note, a date, an amount. Where the date came out of the filename
+      the row says so; where it could not, you type it in. Move a row with the arrows, turn a
+      sideways photo with the &#8635; button, remove a mistake with the &#215;.</dd>
+      <dt>3. Add up and download</dt>
+      <dd>Give the file a title if you want one (&ldquo;Travel, October&rdquo;), pick Letter or A4,
+      and press <i>Build the PDF</i>. The result shows the receipt count, the page count, the size
+      and the total, then gives you the download.</dd>
+    </dl>
+  </section>
+
+  <section class="block">
+    <h2>Nothing gets uploaded</h2>
+    <p>An expense report is a list of everything you bought, and the receipt photos carry your card
+    number and your address. There is no server here to send them to &mdash; no backend, no API key,
+    no analytics. The tool page carries a content-security policy whose <span class="dim">connect-src
+    'none'</span> directive blocks every network request, so it could not upload your photos even if a
+    bug tried to. The PDF and the CSV are assembled by the JavaScript already running in the tab, and
+    land in your own downloads folder. The full source is on
+    <a href="https://github.com/maxhemmerich/receipts-to-pdf">GitHub</a>.</p>
+  </section>
+
+  <section class="block">
+    <h2>What it costs</h2>
+    <p>Free for a file of up to <b>5 receipts</b>: the cover index, the totals, the PDF, the CSV and
+    the download are all included, with no account and no email. Above that, the tool page states what
+    the unlock is and whether checkout is connected yet &mdash; while it is not, nothing on this site
+    can take money and the free version works fully.</p>
+  </section>
+
+  <section class="block">
+    <h2>What this does not do</h2>
+    <p>It does not decide what you can claim back, does not compute a rate or a per-diem, and does not
+    submit anything anywhere. It puts your receipts in one ordered file with a total. Whether an
+    expense is reimbursable, what evidence is wanted, and how the report has to be laid out are
+    questions for whoever it goes to &mdash; not for this page.</p>
+    <p>The tool itself makes no such claim either. It builds the file. That is all.</p>
+  </section>
+
+  <section class="block">
+    <h2>Questions</h2>
+    <dl class="facts">
+      <dt>Is this an expense report template?</dt>
+      <dd>It is the filled version rather than a blank one. You bring the receipts; the tool lists
+      them in date order, with the amount and a note for each, on a cover page that totals the batch,
+      and attaches every receipt behind it. The cover page is the expense report &mdash; its rows are
+      the lines, its total is the total.</dd>
+      <dt>Can I get the expense list into a spreadsheet?</dt>
+      <dd>Yes. After a build, the same rows download as a CSV &mdash; one line per receipt plus the
+      total &mdash; so they open straight in Excel, Numbers or Sheets if the report is wanted as a
+      spreadsheet instead of a PDF.</dd>
+      <dt>Do my receipts get sent to a website?</dt>
+      <dd>No. There is no upload and no server to upload to. The page ships a content-security policy
+      that blocks every network request, so the photos are read and the PDF is assembled in your own
+      browser tab.</dd>
+      <dt>How many receipts can I put in one report?</dt>
+      <dd>Free for a PDF of up to 5 receipts, cover index and totals included, with no account and no
+      email. The result tells you how many receipts were left out.</dd>
+      <dt>Does it decide what I can claim back?</dt>
+      <dd>No. It builds the file. Which expenses are reimbursable, and at what rate, is between you
+      and whoever pays the report.</dd>
+    </dl>
+  </section>
+
+  <footer class="foot">
+    <p><a href="./">ReceiptStack</a> &mdash; one page, no backend. <a href="https://github.com/maxhemmerich/receipts-to-pdf">Source</a>.</p>
+    <p class="dim">Not tax advice, and not a claim decision. This tool puts your receipts in one file; what you send it in for is your call.</p>
+  </footer>
+
+</main>
+
+</body>
+</html>
