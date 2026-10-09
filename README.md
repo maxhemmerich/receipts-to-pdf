@@ -34,9 +34,13 @@ Open it over `http://`, not `file://` — the sample loader uses a canvas and a 
 ## Layout
 
     index.html                  the page and the tool UI
-    combine-receipt-photos-into-one-pdf.html  the guide page that answers the search phrase
+    combine-receipt-photos-into-one-pdf.html   the guide page that answers the search phrase
+    how-to-organize-receipts-for-taxes.html    guide: organizing receipts for taxes
+    reimbursement-claim-pdf.html               guide: a reimbursement claim PDF
+    expense-report-with-receipts.html          guide: an expense report with receipts
+    multiple-receipts-one-page-pdf.html        guide: multiple receipts in one PDF
     robots.txt                  crawl rules + sitemap pointer
-    sitemap.xml                 the four public URLs
+    sitemap.xml                 the nine public URLs (landing page, five guides, three downloads)
     assets/app.js               the whole tool, including the PDF builder
     assets/style.css            the theme
     assets/og-card.png          the social card (generated, see below)
@@ -45,11 +49,22 @@ Open it over `http://`, not `file://` — the sample loader uses a canvas and a 
     downloads/receipts-sample-free.pdf  real output, free build: first 5 of the 7 receipts, 6 pages, the footer mark on every receipt page
     downloads/how-to-use.pdf            one-page instruction sheet
     samples/receipts/           7 sample receipts with made-up merchants, plus their manifest
-    tools/                      scripts used to build the PDFs and check the output
+    tools/                      scripts used to build the PDFs and check the output (see Checks below)
     recon/                      internal research, not published
 
 `tools/check-pdf.py` opens a produced PDF and prints page count, page sizes and the text of every
 page, and can render them to PNG. That is how the output was checked rather than eyeballed.
+
+## Checks
+
+    py -3.10 tools/verify_site.py            # check the working tree
+    py -3.10 tools/verify_site.py --served   # also re-fetch the live site and compare
+
+`verify_site.py` reads the receipt count, page count, KB figure, exact byte count and the footer-mark
+claim straight out of `index.html` and compares each one to the PDF it names, byte for byte — so a page
+edit that mis-states a file fails the check instead of a reader finding it. It also asserts `config.js`
+keeps both constants empty (the paid door stays dormant until the rail exists) and that `assets/app.js`
+still requires both halves before it renders a live buy link. Exit `0` = every check matched.
 
 ## Regenerating the artifacts
 
