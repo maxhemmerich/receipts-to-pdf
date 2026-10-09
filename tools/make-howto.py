@@ -10,7 +10,25 @@ from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, ListFlowab
                                 ListItem, HRFlowable, KeepTogether)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
 OUT = os.path.join(HERE, "..", "downloads", "how-to-use.pdf")
+
+# The price and the address are read from the site's own build outputs, so this sheet cannot
+# drift from what the page states: PRICE_USD out of config.js, the landing URL out of
+# sitemap.xml (the same source tools/indexnow.py uses).
+import re
+def _one(pattern, text, what):
+    m = re.search(pattern, text)
+    if not m:
+        raise SystemExit("make-howto.py: could not read %s from the site (pattern %r)"
+                         % (what, pattern))
+    return m.group(1)
+
+_cfg = open(os.path.join(ROOT, "config.js"), encoding="utf-8").read()
+PRICE = _one(r"PRICE_USD\s*=\s*(\d+)", _cfg, "PRICE_USD from config.js")
+_sm = open(os.path.join(ROOT, "sitemap.xml"), encoding="utf-8").read()
+SITE = _one(r"<loc>\s*([^<]+?)\s*</loc>", _sm, "the landing URL from sitemap.xml")
+SITE_PRETTY = re.sub(r"^https?://", "", SITE).rstrip("/")
 
 INK = colors.HexColor("#1a1815")
 MUTED = colors.HexColor("#5d5748")
@@ -22,6 +40,8 @@ h2 = ParagraphStyle("h2", fontName="Helvetica-Bold", fontSize=10.5, leading=13, 
 body = ParagraphStyle("body", fontName="Helvetica", fontSize=9.4, leading=12.6, textColor=INK)
 step = ParagraphStyle("step", parent=body, spaceAfter=3.5)
 bullet = ParagraphStyle("bullet", parent=body, spaceAfter=2.5)
+foot = ParagraphStyle("foot", fontName="Helvetica", fontSize=8.6, leading=11.4,
+                      textColor=MUTED, spaceBefore=9)
 
 
 def numbered(items):
@@ -78,13 +98,17 @@ story = [
     Paragraph("Free and unlocked", h2),
     Paragraph(
         "The free version puts up to 5 receipts in one PDF. The unlocked version has no limit and "
-        "drops the small footer mark. Both produce the same kind of file, and neither one uploads "
-        "anything.", body),
+        "drops the small footer mark, for $%s once. Both produce the same kind of file, and neither "
+        "one uploads anything." % PRICE, body),
     Paragraph("One thing it does not do", h2),
     Paragraph(
         "ReceiptStack is not tax advice and it does not read the numbers off your receipts for "
         "you. It puts your receipts into one file, in order, with a total. What you claim is your "
         "call and your accountant&rsquo;s.", body),
+    rule(),
+    Paragraph(
+        'ReceiptStack &mdash; <link href="%s">%s</link>. Free for up to 5 receipts per PDF; '
+        '$%s once removes the limit and the footer mark.' % (SITE, SITE_PRETTY, PRICE), foot),
 ]
 
 doc = SimpleDocTemplate(OUT, pagesize=letter,

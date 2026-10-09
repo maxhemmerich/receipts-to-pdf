@@ -292,6 +292,51 @@ def check_free_mark_carries_address():
     return failures
 
 
+def check_howto_sheet_leads_back(path=None):
+    """The one-page how-to sheet must lead a reader back to the tool, at the tool's own price.
+
+    downloads/how-to-use.pdf is a public URL -- it is in sitemap.xml, POSTed to IndexNow and
+    archived on Wayback -- so a stranger can land on it directly, and it is the sheet a reader
+    keeps, prints and forwards. It named the product but carried neither the tool's address nor
+    its price, and had no links at all: a reader who reached it could not get to the page where
+    the free tool and the $9 unlock live. The generator reads the price out of config.js and the
+    address out of sitemap.xml, so this check compares the sheet against those two sources.
+    """
+    failures = []
+    print("check: the how-to sheet leads back to the tool")
+    path = path or os.path.join(ROOT, "downloads", "how-to-use.pdf")
+    if not os.path.exists(path):
+        return ["downloads/how-to-use.pdf is missing"]
+
+    cfg = open(os.path.join(ROOT, "config.js"), encoding="utf-8").read()
+    m = re.search(r"PRICE_USD\s*=\s*(\d+)", cfg)
+    price = m.group(1) if m else None
+    sm = open(os.path.join(ROOT, "sitemap.xml"), encoding="utf-8").read()
+    ms = re.search(r"<loc>\s*([^<]+?)\s*</loc>", sm)
+    site = ms.group(1) if ms else None
+
+    doc = pymupdf.open(path)
+    text = "\n".join(p.get_text() for p in doc)
+    pages = doc.page_count
+    links = [l.get("uri") for p in doc for l in p.get_links()]
+    doc.close()
+
+    if pages != 1:
+        failures.append("how-to-use.pdf is %d page(s); the page names it as '1 page'" % pages)
+    if TOOL_ADDRESS not in text:
+        failures.append("how-to-use.pdf does not carry the tool's address (%s)" % TOOL_ADDRESS)
+    if not price:
+        failures.append("config.js: could not read PRICE_USD")
+    elif ("$%s" % price) not in text:
+        failures.append("how-to-use.pdf does not state the price ($%s, from config.js)" % price)
+    if site not in links:
+        failures.append("how-to-use.pdf has no link to %s (links: %r)" % (site, links))
+
+    print("  pages=%d  address=%s  price=$%s  link=%s"
+          % (pages, TOOL_ADDRESS in text, price, bool(site) and site in links))
+    return failures
+
+
 def check_guide_sample_counts():
     """The flagship guide restates the samples' counts; they must match the files byte for byte.
 
@@ -813,6 +858,7 @@ def main():
     failures += check_sample_labels(a.page, ROOT, served=False)
     failures += check_guide_sample_counts()
     failures += check_free_mark_carries_address()
+    failures += check_howto_sheet_leads_back()
     failures += check_new_page_indexable()
     failures += check_new_page_linked()
     failures += check_cited_page()

@@ -50,7 +50,7 @@ Open it over `http://`, not `file://` — the sample loader uses a canvas and a 
     assets/vendor/pdf-lib.min.js  pdf-lib 1.17.1, vendored (MIT, see the LICENSE file beside it)
     downloads/receipts-sample.pdf       real output, unlocked build: 7 receipts, 8 pages, no footer mark
     downloads/receipts-sample-free.pdf  real output, free build: first 5 of the 7 receipts, 6 pages, the footer mark on every receipt page — and that mark carries the tool's own address (maxhemmerich.github.io/receipts-to-pdf)
-    downloads/how-to-use.pdf            one-page instruction sheet
+    downloads/how-to-use.pdf            one-page instruction sheet (carries the tool's address and the $9 price)
     samples/receipts/           7 sample receipts with made-up merchants, plus their manifest
     tools/                      scripts used to build the PDFs, check the output and archive the pages (see Checks below)
     discovery/wayback-references.json  one archive.org snapshot per public page (tools/archive-pages.py)
@@ -72,7 +72,9 @@ be told the URLs directly. Three things point at them, none of which needs an ac
   reference that lives outside this project's own domain. It reads the URLs from `sitemap.xml`, asks
   archive.org to save each page, and confirms the capture against the CDX index (the
   `/wayback/available` API lags behind it, so it is reported but not trusted). The result is recorded
-  in `discovery/wayback-references.json`; `--verify` re-checks it without saving anything new.
+  in `discovery/wayback-references.json`; `--verify` re-checks it without saving anything new, and
+  `--refresh` re-saves every URL — the captures are taken at a point in time, so a page whose content
+  changed after its capture is re-archived instead of the record silently keeping the older revision.
 
 ## Checks
 
@@ -118,6 +120,15 @@ must cover every `<loc>` that is a page, and each entry must point at a real `we
 whose 14-digit timestamp matches the recorded one and whose status is 200. Proven red by removing a
 page's entry, by pointing an entry at a non-archive host, and by a non-200 status; green on the real
 record. `tools/archive-pages.py --verify` re-checks the same snapshots against archive.org's CDX index.
+
+It also asserts that the one-page sheet leads back to the tool: `downloads/how-to-use.pdf` is itself a
+public URL (it is in `sitemap.xml`, POSTed to IndexNow and archived on Wayback), so a reader can reach it
+directly, and it is the sheet a reader keeps, prints and forwards. It must therefore carry the tool's
+address, state the price **as `config.js` has it**, and carry a link to the site; it must also stay one
+page, the count the landing page prints beside it. The sheet's generator reads `PRICE_USD` out of
+`config.js` and the landing URL out of `sitemap.xml`, so neither can drift — and the check reads the same
+two sources. Proven red by a sheet with no address, one with the wrong price, one with no link, and one
+that spilled to two pages; green on the real file.
 
 The cited guides (`how-long-to-keep-receipts.html` for Canada, `how-long-to-keep-records-irs.html` for
 the US) each get their own guard: the page must name its source URL(s), print a `Read YYYY-MM-DD` date

@@ -25,6 +25,7 @@ WHAT IT DOES
 
 USAGE
     py -3.10 tools/archive-pages.py            # save any page that has no 200 capture yet
+    py -3.10 tools/archive-pages.py --refresh  # re-save EVERY url (a page changed after its capture)
     py -3.10 tools/archive-pages.py --verify   # only re-check the CDX index (no saves)
     py -3.10 tools/archive-pages.py --page X   # just one URL (by its sitemap path)
 """
@@ -167,9 +168,14 @@ def _record(key, refs, ts, sc, target, note=None):
     print("  [done] %s  -> %s (%s)%s" % (key, ts, sc, ("  " + note) if note else ""))
 
 
-def archive_one(url, refs, save=True):
-    """Ensure `url` has a 200 capture; return a status string."""
-    have = cdx_latest(url)
+def archive_one(url, refs, save=True, refresh=False):
+    """Ensure `url` has a 200 capture; return a status string.
+
+    With refresh=True a capture is re-saved even when one already exists, so a
+    page whose content changed after its capture is re-archived instead of the
+    record silently keeping the older revision.
+    """
+    have = None if refresh else cdx_latest(url)
     if have:
         ts, sc = have
         _record(url, refs, ts, sc, url)
@@ -213,6 +219,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--verify", action="store_true",
                     help="only re-check the CDX index; save nothing")
+    ap.add_argument("--refresh", action="store_true",
+                    help="re-save every URL even if a capture exists, so a page whose "
+                         "content changed after its capture is re-archived")
     ap.add_argument("--page", default=None, help="limit to one sitemap URL (exact match)")
     a = ap.parse_args()
 
@@ -226,9 +235,9 @@ def main():
     refs = db.setdefault("references", {})
 
     print("check: archive captures for %d public URL(s) (%s)"
-          % (len(urls), "verify" if a.verify else "save"))
+          % (len(urls), "verify" if a.verify else ("refresh" if a.refresh else "save")))
     for i, url in enumerate(urls):
-        archive_one(url, refs, save=not a.verify)
+        archive_one(url, refs, save=not a.verify, refresh=a.refresh and not a.verify)
         save_db(db)  # write after every URL so a timeout never loses progress
         if not a.verify and i < len(urls) - 1:
             time.sleep(SLEEP_BETWEEN_SAVES)
