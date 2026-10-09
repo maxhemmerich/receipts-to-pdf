@@ -29,6 +29,7 @@ from datetime import date
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "how-long-to-keep-receipts.html")
+IRS_OUT = os.path.join(ROOT, "how-long-to-keep-records-irs.html")
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ReceiptStack-build-check"
 
 # The three named CRA pages this track quotes. `title` is the page's own heading; `sentences` are the
@@ -59,6 +60,31 @@ SOURCES = {
         "sentences": [
             "Keep your records for six years from the end of the last tax year they relate to, unless you have permission from the CRA to destroy them earlier.",
             "You may need to keep some source documents to provide details that support your records.",
+        ],
+    },
+}
+
+
+# The one IRS page this track quotes, for the identical question in the United States. Same shape as
+# the CRA block above: every sentence below is asserted present in the fetched page before it can be
+# printed, so a quote is never carried from memory and a moved sentence stops the build.
+IRS_SOURCES = {
+    "irs": {
+        "url": "https://www.irs.gov/businesses/small-businesses-self-employed/how-long-should-i-keep-records",
+        "title": "How long should I keep records?",
+        "sentences": [
+            "Generally, you must keep your records that support an item of income, deduction or credit shown on your tax return until the period of limitations for that tax return runs out.",
+            "The period of limitations is the period of time in which you can amend your tax return to claim a credit or refund, or the IRS can assess additional tax.",
+            "Unless otherwise stated, the years refer to the period after the return was filed.",
+            "Keep records for 3 years if situations (4), (5), and (6) below do not apply to you.",
+            "Keep records for 6 years if you do not report income that you should report, and it is more than 25% of the gross income shown on your return.",
+            "Keep records for 7 years if you file a claim for a loss from worthless securities or bad debt deduction.",
+            "Keep records indefinitely if you do not file a return.",
+            "Keep records indefinitely if you file a fraudulent return.",
+            "Keep employment tax records for at least 4 years after the date that the tax becomes due or is paid, whichever is later.",
+            "Keep copies of your filed tax returns.",
+            "Generally, keep records relating to property until the period of limitations expires for the year in which you dispose of the property.",
+            "When your records are no longer needed for tax purposes, do not discard them until you check to see if you have to keep them longer for other purposes.",
         ],
     },
 }
@@ -185,7 +211,8 @@ TEMPLATE = r'''<!DOCTYPE html>
   one PDF</a> &middot; <a href="reimbursement-claim-pdf.html">for a reimbursement claim</a> &middot;
   <a href="expense-report-with-receipts.html">for an expense report</a> &middot;
   <a href="multiple-receipts-one-page-pdf.html">multiple receipts in one PDF</a> &middot;
-  <a href="scan-receipts-to-pdf-on-a-phone.html">from a phone</a></p>
+  <a href="scan-receipts-to-pdf-on-a-phone.html">from a phone</a> &middot;
+  <a href="how-long-to-keep-records-irs.html">how long to keep records in the US</a></p>
 
   <section class="block">
     <h2>The short answer: six years</h2>
@@ -311,6 +338,234 @@ TEMPLATE = r'''<!DOCTYPE html>
 </html>
 '''
 
+# The IRS page template, same shape as the CRA one: no quote text is written here, only [[TOKEN]]
+# placeholders main() fills from the live irs.gov fetch.
+IRS_TEMPLATE = r'''<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<title>How long should I keep records? &mdash; the IRS&rsquo;s periods of limitation, quoted | ReceiptStack</title>
+<meta name="description" content="The IRS&rsquo;s own rule, quoted from irs.gov: generally, keep your records that support an item of income, deduction or credit until the period of limitations for that return runs out &mdash; 3 years in the ordinary case, longer in the situations the page lists. This page prints the source URL and the date it was read beside each quote.">
+<link rel="canonical" href="https://maxhemmerich.github.io/receipts-to-pdf/how-long-to-keep-records-irs.html">
+<meta name="theme-color" content="#f4f1e9">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ReceiptStack">
+<meta property="og:title" content="How long should I keep records? &mdash; the IRS&rsquo;s periods of limitation">
+<meta property="og:description" content="Quoted from irs.gov, with the source URL and the date it was read: keep your records until the period of limitations for that return runs out &mdash; 3 years in the ordinary case. No upload, no account.">
+<meta property="og:url" content="https://maxhemmerich.github.io/receipts-to-pdf/how-long-to-keep-records-irs.html">
+<meta property="og:image" content="https://maxhemmerich.github.io/receipts-to-pdf/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The ReceiptStack index page: seven receipts listed with dates and amounts, total $712.14">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How long should I keep records? &mdash; the IRS&rsquo;s periods of limitation">
+<meta name="twitter:description" content="The IRS&rsquo;s own rule, quoted from irs.gov with the source URL and the date it was read.">
+<meta name="twitter:image" content="https://maxhemmerich.github.io/receipts-to-pdf/assets/og-card.png">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://maxhemmerich.github.io/receipts-to-pdf/#app",
+      "name": "ReceiptStack",
+      "url": "https://maxhemmerich.github.io/receipts-to-pdf/",
+      "description": "Turns photos of paper receipts into one dated, indexed PDF: a cover index in date order with a total, then one receipt per page. Runs entirely in the browser - no upload, no account, no server.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any device with a modern web browser",
+      "featureList": [
+        "One receipt per page, nothing cropped",
+        "Cover index in date order with a total for the whole batch",
+        "Dates read from the filename when they are in there",
+        "Your photos never leave your browser"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://maxhemmerich.github.io/receipts-to-pdf/how-long-to-keep-records-irs.html#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How long should I keep records in the United States?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The IRS's rule, quoted on this page from its own irs.gov page, is stated as a period rather than a number of years: generally, keep your records that support an item of income, deduction or credit until the period of limitations for that return runs out. Its page lists 3 years as the ordinary period, with longer periods in specific situations. The source URL and the date it was read are printed beside the quote."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the US period the same as the Canadian six-year rule?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. They are different jurisdictions with different rules. The Canada Revenue Agency's six-year rule is quoted on its own page; the Internal Revenue Service's periods are quoted on this one. Neither figure substitutes for the other."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does ReceiptStack tell me what to keep or for how long?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. The retention rules are the IRS's and the CRA's, quoted from their pages. ReceiptStack only assembles the receipts you give it into one dated, indexed PDF, in your browser - nothing is uploaded, there is no account, and it makes no tax decisions."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How many receipts can I put in one PDF?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Free for a PDF of up to 5 receipts, index and totals included, with no account and no email. Above that, a one-time $9 unlock removes the limit and the small footer mark."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<header class="bar">
+  <span class="brand">ReceiptStack</span>
+  <nav>
+    <a href="./">The tool</a>
+    <a href="./#sample">Sample output</a>
+    <a href="./#privacy">Privacy</a>
+  </nav>
+</header>
+
+<main>
+
+  <p class="eyebrow">Guide</p>
+  <h1>How long should I keep records?</h1>
+  <p class="lede">In the United States this is not one number. The Internal Revenue Service states the
+  rule as a period, not a fixed term: <b>keep your records until the period of limitations for that
+  return runs out</b> &mdash; which its own page then spells out, 3 years in the ordinary case and
+  longer in the situations it lists. This page quotes that from the IRS&rsquo;s own page, prints the
+  source URL and the date it was read beside every quote, and is plain about the small part the rest of
+  this site plays &mdash; turning a pile of receipt photos into one dated, indexed file, in your
+  browser, with nothing uploaded.</p>
+  <p><a href="./#tool">Open the tool</a> &middot; <a href="downloads/receipts-sample.pdf">see a real
+  output first</a> &middot; <a href="how-long-to-keep-receipts.html">how long to keep receipts in
+  Canada</a> &middot; <a href="how-to-organize-receipts-for-taxes.html">how to organize receipts for
+  taxes</a> &middot; <a href="combine-receipt-photos-into-one-pdf.html">combine receipt photos into one
+  PDF</a> &middot; <a href="reimbursement-claim-pdf.html">for a reimbursement claim</a> &middot;
+  <a href="expense-report-with-receipts.html">for an expense report</a> &middot;
+  <a href="multiple-receipts-one-page-pdf.html">multiple receipts in one PDF</a> &middot;
+  <a href="scan-receipts-to-pdf-on-a-phone.html">from a phone</a></p>
+
+  <section class="block">
+    <h2>The rule: until the period of limitations runs out</h2>
+    <p>The IRS answers this question with a period rather than a flat number of years. Its rule is one
+    sentence:</p>
+    <blockquote cite="[[IRS_URL]]">[[IRS_RULE]]</blockquote>
+    [[CITE_IRS]]
+    <p>That phrase &mdash; <i>the period of limitations</i> &mdash; is the whole answer, so here is the
+    IRS defining it in the next paragraph of the same page:</p>
+    <blockquote cite="[[IRS_URL]]">[[IRS_DEF]]</blockquote>
+    <p class="dim">From the same page: [[IRS_AFTER_FILED]]</p>
+  </section>
+
+  <section class="block">
+    <h2>How long that period is, in the IRS&rsquo;s own numbers</h2>
+    <p>For an income tax return the IRS lists the periods below on the same page. Each line is its own
+    wording, quoted, not a summary. The first line cites the IRS&rsquo;s own numbering; those are the
+    exceptions further down its page.</p>
+    <dl class="facts">
+      <dt>The ordinary case</dt>
+      <dd>[[IRS_3YR]] <span class="dim">&mdash; IRS, <i>How long should I keep records?</i></span></dd>
+      <dt>A loss from worthless securities or a bad debt</dt>
+      <dd>[[IRS_7YR]] <span class="dim">&mdash; same IRS page.</span></dd>
+      <dt>Under-reporting income by more than 25%</dt>
+      <dd>[[IRS_6YR]] <span class="dim">&mdash; same IRS page.</span></dd>
+      <dt>No return filed, or a fraudulent one</dt>
+      <dd>[[IRS_INDEF_NF]] [[IRS_INDEF_FRAUD]] <span class="dim">&mdash; same IRS page.</span></dd>
+      <dt>Employment tax records</dt>
+      <dd>[[IRS_EMPLOY]] <span class="dim">&mdash; same IRS page.</span></dd>
+    </dl>
+    <p>Two more sentences from that page matter when the record is not a receipt. On the return itself:
+    [[IRS_FILED_COPY]] For anything you own, the same page says: [[IRS_PROPERTY]]</p>
+    <p class="dim">Read the wording closely: [[IRS_NONTAX]] &mdash; the tax periods above are not the
+    only reason you might have to keep a document.</p>
+  </section>
+
+  <section class="block">
+    <h2>What this page is not</h2>
+    <p>This is a quotation of a published rule, not tax advice. It does not know your situation &mdash;
+    whether you filed on time, whether a claim for refund or a bad debt is involved, or whether some
+    other rule already requires you to keep a document longer. Where the periods above are not the whole
+    answer for you, the page linked here is the source, and your accountant is the person to ask.</p>
+    <p>The tool on the rest of this site makes no tax claim at all. It does not decide what you can
+    claim, does not compute a deduction, and does not track any retention period for you. It builds a
+    PDF.</p>
+  </section>
+
+  <section class="block">
+    <h2>Making receipts you can keep</h2>
+    <p>Whichever period applies to you, the record has to survive it. Paper makes that hard: a thermal
+    till receipt left in a drawer or a car can fade to unreadable inside a year, well before the period
+    is up. A photograph taken the day you get the receipt is the copy that survives the wait &mdash; and
+    a dated, indexed file of those photographs is the copy you can actually lay hands on when you need
+    it.</p>
+    <p>That is the one thing this site does. <a href="./#tool">ReceiptStack</a> takes the receipt photos
+    you drop in and assembles them into one PDF: a cover index that lists every receipt in date order
+    with its amount and a total, then one receipt per page with its date and amount in the footer. It
+    runs entirely in the browser tab &mdash; there is no upload, no server, no account, enforced by a
+    content-security policy whose <span class="dim">connect-src 'none'</span> directive blocks every
+    network request. It is free for a PDF of up to <b>5 receipts</b>; a one-time <b>$9</b> unlock
+    removes the cap and the small footer mark. It does not read the receipt, does not OCR it and does
+    not guess an amount &mdash; the photo is the record, and every number but a date in the filename is
+    one you type.</p>
+  </section>
+
+  <section class="block">
+    <h2>Questions</h2>
+    <dl class="facts">
+      <dt>How long should I keep records in the United States?</dt>
+      <dd>The IRS&rsquo;s own page states it as a period, not a number of years. Its rule, quoted above
+      from irs.gov, is: <i>&ldquo;[[IRS_RULE_LEDE]]&rdquo;</i> Its page then lists 3 years as the
+      ordinary period, longer in the cases quoted above.</dd>
+      <dt>Is that the same as the Canadian six-year rule?</dt>
+      <dd>No &mdash; they are different jurisdictions with different rules. The CRA&rsquo;s six-year
+      rule is quoted on <a href="how-long-to-keep-receipts.html">its own page</a>; the US periods are
+      the IRS&rsquo;s, quoted here. Neither figure is a substitute for the other.</dd>
+      <dt>What if I never filed a return?</dt>
+      <dd>[[IRS_INDEF_NF]] &mdash; quoted from the IRS&rsquo;s page, linked below.</dd>
+      <dt>Does ReceiptStack tell me what to keep or for how long?</dt>
+      <dd>No. The retention rules are the IRS&rsquo;s and the CRA&rsquo;s, and are quoted from their
+      pages. ReceiptStack only assembles the receipts you give it into one dated, indexed PDF, in your
+      browser &mdash; nothing is uploaded, there is no account, and it makes no tax decisions.</dd>
+      <dt>How many receipts can I put in one PDF?</dt>
+      <dd>Free for a PDF of up to 5 receipts, index and totals included, with no account and no email.
+      Above that, a one-time $9 unlock removes the limit and the small footer mark.</dd>
+    </dl>
+  </section>
+
+  <section class="block">
+    <h2>Sources</h2>
+    <p class="dim">Every quotation on this page was read from this Internal Revenue Service page on
+    [[DATE_READ]] ([[DATE_READ_LONG]]), and the sentence was matched against the page at build time.
+    IRS material is a U.S. Government work and is in the public domain.</p>
+    <ul class="dim">
+      <li>Internal Revenue Service &mdash; <i>How long should I keep records?</i><br>
+      <a href="[[IRS_URL]]">[[IRS_URL]]</a><br>
+      Page last reviewed or updated [[IRS_MOD]].</li>
+    </ul>
+  </section>
+
+  <footer class="foot">
+    <p><a href="./">ReceiptStack</a> &mdash; one page, no backend. <a href="https://github.com/maxhemmerich/receipts-to-pdf">Source</a>.</p>
+    <p class="dim">Not tax advice. The retention periods above are the IRS&rsquo;s, quoted with their source; this tool puts your receipts in one file and nothing more.</p>
+  </footer>
+
+</main>
+
+</body>
+</html>
+'''
+
 
 def fetch(url, timeout=60):
     """Return (status_code, body) via curl. (0, None) if the request failed."""
@@ -342,38 +597,41 @@ def plain(raw):
 
 def date_modified(raw):
     m = re.search(r'name="dcterms\.modified"[^>]*content="([^"]+)"', raw)
+    if m:
+        return m.group(1)
+    # the IRS page carries no dcterms meta; it prints the date as visible text.
+    m = re.search(r"Page Last Reviewed or Updated:\s*([0-9]{1,2}-[A-Za-z]{3}-[0-9]{4})", raw)
     return m.group(1) if m else None
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--check", action="store_true", help="verify the quotes, write nothing")
-    a = ap.parse_args()
+def fetch_and_verify(sources, label):
+    """Fetch each source page and prove every allowed sentence is present verbatim.
 
-    read = date.today()
+    Returns (quotes, meta). Aborts -- and writes nothing -- if a page cannot be read or a sentence is
+    not found where it is claimed to be, so a quote is never carried from memory.
+    """
     quotes = {}
     meta = {}
-    for key, src in SOURCES.items():
+    for key, src in sources.items():
         code, raw = fetch(src["url"])
-        print("fetch %-6s %s -> HTTP %s" % (key, src["url"], code))
+        print("fetch %-4s %-6s -> HTTP %s" % (label, key, code))
         if code != 200 or not raw:
             sys.exit("ABORT: could not read %s (HTTP %s). No page written; a quote is never "
                      "carried from memory." % (src["url"], code))
         text = plain(raw)
         for s in src["sentences"]:
             if plain(s) not in text:
-                sys.exit("ABORT: the sentence %r was not found verbatim on %s. CRA may have changed "
-                         "the page -- refusing to publish a quote it can no longer stand behind."
-                         % (s[:60], src["url"]))
+                sys.exit("ABORT: the sentence %r was not found verbatim on %s. The source may have "
+                         "changed the page -- refusing to publish a quote it can no longer stand "
+                         "behind." % (s[:60], src["url"]))
         quotes[key] = {s: plain(s) for s in src["sentences"]}
         meta[key] = date_modified(raw)
         print("  ok  %d/%d sentences verified verbatim; page last modified %s"
               % (len(src["sentences"]), len(src["sentences"]), meta[key]))
+    return quotes, meta
 
-    if a.check:
-        print("check only: %s NOT written." % os.path.basename(OUT))
-        return
 
+def render_cra(quotes, meta, read):
     def cite(key):
         src = SOURCES[key]
         mod = meta[key] or "unknown"
@@ -406,9 +664,74 @@ def main():
             .replace("[[CITE_BIZ]]", cite("biz"))
             .replace("[[CITE_RC188]]", cite("rc188")))
 
-    assert "[[" not in page, "make-keep-receipts-page: an unsubstituted placeholder remains"
-    open(OUT, "w", newline="\n", encoding="utf-8").write(page)
-    print("wrote %s (%d bytes), quotes read %s" % (os.path.relpath(OUT, ROOT), len(page.encode("utf-8")), read.isoformat()))
+    assert "[[" not in page, "make-keep-receipts-page: an unsubstituted placeholder remains (CRA page)"
+    return page
+
+
+def render_irs(quotes, meta, read):
+    """The IRS page. Every [[IRS_*]] token is filled from the verbatim quotes, never typed here."""
+    src = IRS_SOURCES["irs"]
+    q = quotes["irs"]
+
+    def g(sentence):
+        return html.escape(q[sentence])
+
+    def cite():
+        return ('<p class="cite">Source: Internal Revenue Service &mdash; <i>%s</i>. '
+                '<a href="%s">%s</a><br>Read %s &middot; irs.gov page last reviewed or updated %s. '
+                'U.S. Government work, public domain.</p>'
+                % (html.escape(src["title"]), src["url"], src["url"],
+                   read.isoformat(), meta["irs"] or "unknown"))
+
+    read_long = "%d %s %d" % (read.day, read.strftime("%B"), read.year)
+
+    page = (IRS_TEMPLATE
+            .replace("[[DATE_READ]]", read.isoformat())
+            .replace("[[DATE_READ_LONG]]", read_long)
+            .replace("[[IRS_URL]]", src["url"])
+            .replace("[[IRS_MOD]]", html.escape(meta["irs"] or "unknown"))
+            .replace("[[CITE_IRS]]", cite())
+            .replace("[[IRS_RULE_LEDE]]", g("Generally, you must keep your records that support an item of income, deduction or credit shown on your tax return until the period of limitations for that tax return runs out."))
+            .replace("[[IRS_RULE]]", g("Generally, you must keep your records that support an item of income, deduction or credit shown on your tax return until the period of limitations for that tax return runs out."))
+            .replace("[[IRS_DEF]]", g("The period of limitations is the period of time in which you can amend your tax return to claim a credit or refund, or the IRS can assess additional tax."))
+            .replace("[[IRS_AFTER_FILED]]", g("Unless otherwise stated, the years refer to the period after the return was filed."))
+            .replace("[[IRS_3YR]]", g("Keep records for 3 years if situations (4), (5), and (6) below do not apply to you."))
+            .replace("[[IRS_7YR]]", g("Keep records for 7 years if you file a claim for a loss from worthless securities or bad debt deduction."))
+            .replace("[[IRS_6YR]]", g("Keep records for 6 years if you do not report income that you should report, and it is more than 25% of the gross income shown on your return."))
+            .replace("[[IRS_INDEF_NF]]", g("Keep records indefinitely if you do not file a return."))
+            .replace("[[IRS_INDEF_FRAUD]]", g("Keep records indefinitely if you file a fraudulent return."))
+            .replace("[[IRS_EMPLOY]]", g("Keep employment tax records for at least 4 years after the date that the tax becomes due or is paid, whichever is later."))
+            .replace("[[IRS_FILED_COPY]]", g("Keep copies of your filed tax returns."))
+            .replace("[[IRS_PROPERTY]]", g("Generally, keep records relating to property until the period of limitations expires for the year in which you dispose of the property."))
+            .replace("[[IRS_NONTAX]]", g("When your records are no longer needed for tax purposes, do not discard them until you check to see if you have to keep them longer for other purposes.")))
+
+    assert "[[" not in page, "make-keep-receipts-page: an unsubstituted placeholder remains (IRS page)"
+    return page
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--check", action="store_true", help="verify the quotes, write nothing")
+    ap.add_argument("--page", choices=["cra", "irs", "both"], default="both",
+                    help="which cited page to build (default: both)")
+    a = ap.parse_args()
+
+    read = date.today()
+    builds = []
+    if a.page in ("cra", "both"):
+        builds.append(("CRA", SOURCES, OUT, render_cra))
+    if a.page in ("irs", "both"):
+        builds.append(("IRS", IRS_SOURCES, IRS_OUT, render_irs))
+
+    for label, sources, out, render in builds:
+        quotes, meta = fetch_and_verify(sources, label)
+        if a.check:
+            print("check only: %s NOT written." % os.path.basename(out))
+            continue
+        page = render(quotes, meta, read)
+        open(out, "w", newline="\n", encoding="utf-8").write(page)
+        print("wrote %s (%d bytes), quotes read %s"
+              % (os.path.relpath(out, ROOT), len(page.encode("utf-8")), read.isoformat()))
 
 
 if __name__ == "__main__":

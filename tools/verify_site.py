@@ -55,6 +55,16 @@ CRA_SOURCES = [
 CRA_RULE = ("Keep your records for six years from the end of the last tax year they relate to, "
             "unless you have permission from the CRA to destroy them earlier.")
 CRA_RULE_IND = "Keep your tax documents and records for at least six years."
+# The second cited guide: the identical retention question for the United States, quoting the IRS.
+# Same guard -- its one source URL must be named and its sentences carried verbatim, so a rewrite
+# cannot drop or soften a quotation.
+IRS_PAGE = "how-long-to-keep-records-irs.html"
+IRS_SOURCES = [
+    "https://www.irs.gov/businesses/small-businesses-self-employed/how-long-should-i-keep-records",
+]
+IRS_RULE = ("Generally, you must keep your records that support an item of income, deduction or credit "
+            "shown on your tax return until the period of limitations for that tax return runs out.")
+IRS_RULE_2 = "Keep records for 3 years if situations (4), (5), and (6) below do not apply to you."
 
 
 # --------------------------------------------------------------------------- #
@@ -305,7 +315,7 @@ def check_served_page_matches_tree(page_path, fetch):
 
 
 def _html_files():
-    return ["index.html"] + GUIDES + [CRA_PAGE]
+    return ["index.html"] + GUIDES + [CRA_PAGE, IRS_PAGE]
 
 
 def _loc_for(page):
@@ -443,22 +453,22 @@ def check_served_new_page(fetch):
     return failures
 
 
-def check_cited_page():
-    """The CRA guide: indexable, self-canonical, names every source and quotes it verbatim.
+def _cited_page_failures(page, title_pat, sources, sentences):
+    """A cited guide: indexable, self-canonical, every source named, every sentence quoted verbatim.
 
-    This guards the one thing that made the page honest -- that its quotations come from the named
-    canada.ca pages, with the date they were read printed beside them, and that its own price/cap
-    figures still match config.js and assets/app.js.
+    This guards the one thing that made such a page honest -- that its quotations come from the named
+    government pages, with the date they were read printed beside them, and that its own price/cap
+    figures still match config.js and assets/app.js. Shared by the CRA and IRS guides.
     """
     failures = []
-    p = os.path.join(ROOT, CRA_PAGE)
-    print("check: cited guide is indexable and carries its sources (%s)" % CRA_PAGE)
+    p = os.path.join(ROOT, page)
+    print("check: cited guide is indexable and carries its sources (%s)" % page)
     if not os.path.exists(p):
-        return ["%s is missing" % CRA_PAGE]
+        return ["%s is missing" % page]
     html = open(p, encoding="utf-8").read()
-    url = "%s/%s" % (SITE, CRA_PAGE)
+    url = "%s/%s" % (SITE, page)
     rules = [
-        ("title", r"<title>[^<]*how long do i have to keep receipts[^<]*</title>"),
+        ("title", title_pat),
         ("description", r'<meta name="description" content="[^"]{80,}"'),
         ("canonical", re.escape('<link rel="canonical" href="%s">' % url)),
         ("og:url", re.escape('<meta property="og:url" content="%s">' % url)),
@@ -470,22 +480,22 @@ def check_cited_page():
         ok = re.search(pat, html, re.I) is not None
         print("  %-14s : %s" % (name, ok))
         if not ok:
-            failures.append("%s: %s is missing or wrong" % (CRA_PAGE, name))
+            failures.append("%s: %s is missing or wrong" % (page, name))
 
-    for src in CRA_SOURCES:
+    for src in sources:
         ok = src in html
         print("  source         : %s %s" % ("ok " if ok else "MISSING", src[:64]))
         if not ok:
-            failures.append("%s does not name the source %s" % (CRA_PAGE, src))
-    for sentence in (CRA_RULE, CRA_RULE_IND):
+            failures.append("%s does not name the source %s" % (page, src))
+    for sentence in sentences:
         ok = sentence in html
         print("  quote          : %s %s" % ("ok " if ok else "MISSING", sentence[:56]))
         if not ok:
-            failures.append("%s does not quote verbatim: %s" % (CRA_PAGE, sentence[:56]))
+            failures.append("%s does not quote verbatim: %s" % (page, sentence[:56]))
     readstamp = re.search(r"Read \d{4}-\d{2}-\d{2}", html) is not None
     print("  read date      : %s" % readstamp)
     if not readstamp:
-        failures.append("%s: no 'Read YYYY-MM-DD' date stamp beside the quotes" % CRA_PAGE)
+        failures.append("%s: no 'Read YYYY-MM-DD' date stamp beside the quotes" % page)
 
     # the page's own price and free cap must not drift from config.js / assets/app.js
     cfg = open(os.path.join(ROOT, "config.js"), encoding="utf-8").read()
@@ -498,23 +508,39 @@ def check_cited_page():
     print("  free cap %s     : %s" % (cm.group(1) if cm else "?", cap_ok))
     if not price_ok:
         failures.append("%s: the $%s price (config.js PRICE_USD) is not printed on the page"
-                        % (CRA_PAGE, pm.group(1) if pm else "?"))
+                        % (page, pm.group(1) if pm else "?"))
     if not cap_ok:
         failures.append("%s: the free cap %s (app.js FREE_LIMIT) is not stated on the page"
-                        % (CRA_PAGE, cm.group(1) if cm else "?"))
+                        % (page, cm.group(1) if cm else "?"))
 
     # reachable: linked from the landing page and from a sibling guide
     landing = open(os.path.join(ROOT, "index.html"), encoding="utf-8").read()
-    from_landing = CRA_PAGE in landing
+    from_landing = page in landing
     siblings = [g for g in GUIDES
-                if CRA_PAGE in open(os.path.join(ROOT, g), encoding="utf-8").read()]
+                if page in open(os.path.join(ROOT, g), encoding="utf-8").read()]
     print("  linked from landing : %s" % from_landing)
     print("  linked from guides  : %d/%d" % (len(siblings), len(GUIDES)))
     if not from_landing:
-        failures.append("index.html does not link %s" % CRA_PAGE)
+        failures.append("index.html does not link %s" % page)
     if not siblings:
-        failures.append("no sibling guide links %s" % CRA_PAGE)
+        failures.append("no sibling guide links %s" % page)
     return failures
+
+
+def check_cited_page():
+    """The CRA guide -- the retention question for Canada."""
+    return _cited_page_failures(
+        CRA_PAGE,
+        r"<title>[^<]*how long do i have to keep receipts[^<]*</title>",
+        CRA_SOURCES, (CRA_RULE, CRA_RULE_IND))
+
+
+def check_cited_page_irs():
+    """The IRS guide -- the identical retention question for the United States."""
+    return _cited_page_failures(
+        IRS_PAGE,
+        r"<title>[^<]*how long should i keep records[^<]*</title>",
+        IRS_SOURCES, (IRS_RULE, IRS_RULE_2))
 
 
 def check_served_page(fetch, page):
@@ -533,6 +559,64 @@ def check_served_page(fetch, page):
     return failures
 
 
+def _load_generator():
+    """Import tools/make-keep-receipts-page.py (hyphenated name -> importlib) to reuse its fetch/plain.
+
+    Reusing the generator's own functions is the point: the live re-assert below must test the source
+    pages with exactly the fetch and the text-normalizer that produced the shipped quotes.
+    """
+    import importlib.util
+
+    path = os.path.join(ROOT, "tools", "make-keep-receipts-page.py")
+    spec = importlib.util.spec_from_file_location("make_keep_receipts_page", path)
+    if spec is None or spec.loader is None:
+        raise ImportError("could not load the generator at %s" % path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def check_cited_sources_live():
+    """--served: re-fetch each named government page and re-assert every quoted sentence is still there.
+
+    The shipped page is frozen text; each quote was proven present on its source at build time. This
+    re-fetches the source pages on demand, with the generator's own fetch()+plain(), so the suite
+    catches a CRA or IRS edit rather than relying on someone re-running the generator. Behind --served
+    because it is a network check.
+    """
+    failures = []
+    print("check: cited sources are still live (CRA + IRS)")
+    try:
+        gen = _load_generator()
+    except Exception as e:  # noqa
+        return ["could not load the generator for the live source check: %s" % e]
+
+    for label, attr in (("CRA", "SOURCES"), ("IRS", "IRS_SOURCES")):
+        sources = getattr(gen, attr, None)
+        if not sources:
+            failures.append("the generator exposes no %s to re-check" % attr)
+            continue
+        for key, src in sources.items():
+            try:
+                code, raw = gen.fetch(src["url"])
+            except SystemExit as e:  # fetch() exits if curl is missing
+                failures.append("%s %s: fetch aborted: %s" % (label, key, e))
+                continue
+            print("  %-4s %-4s HTTP %s" % (label, key, code))
+            if code != 200 or not raw:
+                failures.append("%s %s: the source page %s is no longer readable (HTTP %s)"
+                                % (label, key, src["url"], code))
+                continue
+            text = gen.plain(raw)
+            missing = [s for s in src["sentences"] if gen.plain(s) not in text]
+            print("    %d/%d quoted sentences still present"
+                  % (len(src["sentences"]) - len(missing), len(src["sentences"])))
+            for s in missing:
+                failures.append("%s %s: the quoted sentence is no longer on %s: %r"
+                                % (label, key, src["url"], s[:70]))
+    return failures
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--served", action="store_true", help="also fetch the live site and compare")
@@ -545,6 +629,7 @@ def main():
     failures += check_new_page_indexable()
     failures += check_new_page_linked()
     failures += check_cited_page()
+    failures += check_cited_page_irs()
     failures += check_sitemap_covers_pages()
     failures += check_no_external_subresources()
     failures += check_og_card()
@@ -553,7 +638,9 @@ def main():
         failures += check_served_page_matches_tree(a.page, fetch)
         failures += check_served_new_page(fetch)
         failures += check_served_page(fetch, CRA_PAGE)
+        failures += check_served_page(fetch, IRS_PAGE)
         failures += check_sample_labels(a.page, ROOT, served=True, fetch=fetch)
+        failures += check_cited_sources_live()
     failures += check_config()
     failures += check_paid_door_atomic()
 
