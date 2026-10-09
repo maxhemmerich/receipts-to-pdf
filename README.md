@@ -133,6 +133,41 @@ re-fetches each named CRA/IRS page with the generator's own `fetch()` + `plain()
 quoted sentence is still there, so the suite catches a government edit rather than only a re-run of the
 generator — proven red when one sentence no longer matches the source and green on the real sources.
 
+## The unlock, proven end to end — 2026-10-09
+
+The paid door had only ever been checked as a *door*: it renders correctly in every state, but with
+`config.js` carrying both constants empty no code had ever been typed in and accepted, so the two
+things the $9 buys — the 5-receipt cap lifting and the footer mark coming off — were asserted, not
+seen. They have now been driven through the shipped files in a real browser.
+
+The harness is a **scratch copy of this site outside the repository** (never committed, the live
+`config.js` untouched): the same `index.html`, `assets/app.js` and sample receipts, served over
+`http://127.0.0.1` with `CHECKOUT_URL` set to a placeholder link and `UNLOCK_CODE` set to the digest
+of a freshly minted test code. Mint it with the tool that ships here:
+
+    py -3.10 tools/mint-unlock-code.py     # prints the CODE (to the buyer) and its DIGEST (config.js)
+
+The page derives `PBKDF2-HMAC-SHA256(normalise(code), "receiptstack.unlock.v1", 210000, 32 bytes)` in
+WebCrypto and compares the hex with `UNLOCK_CODE`; nothing leaves the tab, which is why the check runs
+under `connect-src 'none'` unchanged. Observed in the harness:
+
+- a **wrong** code → *"That code was not recognised."*, and the cap stays at 5;
+- the **right** code → *"Unlocked. Add as many receipts as you like."*, the cap note and the limit line
+  disappear, `receiptstack.unlocked` is stored, and the button becomes *"Unlocked on this browser"*;
+- the unlocked build of all 7 sample receipts is **8 pages, 648 KB, no footer mark**, footers
+  `Receipt n of 7`, index in date order with the total — structurally identical to
+  `downloads/receipts-sample.pdf` (page text equal on every page; the only differing object is the
+  cover's build-date stamp), while the same page still locked builds the 5-receipt, marked file that
+  matches `downloads/receipts-sample-free.pdf`;
+- the whole thing with **zero CSP violations, zero JS errors, and no `fetch` / XHR / `sendBeacon` /
+  WebSocket call ever made** — the unlock is a local computation.
+
+**The harness was proven able to fail before it was trusted:** flipping one hex character of the digest
+in the served `config.js` makes the *correct* code come back *"That code was not recognised."*; restoring
+the digest and retyping the same code unlocks. RED then GREEN, so the acceptance above is a real
+comparison and not an unconditional unlock. Re-run it before the rail goes live, and again with the real
+code the day Max's store mints one — the procedure is the same, only the digest is.
+
 ## Regenerating the artifacts
 
     py -3.10 samples/receipts/make_receipts.py     # the sample receipt images
