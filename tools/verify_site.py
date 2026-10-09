@@ -630,6 +630,56 @@ def check_faq_markup_matches_page():
     return failures
 
 
+def check_landing_owns_its_query():
+    """The landing page must speak the query this product claims: "receipt to PDF".
+
+    CLAIM.md names the query the tool answers as "receipt to pdf" / "combine receipt photos
+    into one PDF", and the combine guide owns the second phrasing. The first appeared
+    nowhere on the site -- not the title, not the description, not the hero -- so the one
+    page a searcher typing it lands on never said it. This asserts the exact phrase is in
+    the landing page's title, meta description, both social-card titles, the JSON-LD
+    SoftwareApplication description, and the reader-visible text (the wake-13 rule: markup
+    must describe something a reader can see). And it asserts the phrase has ONE owner --
+    no other page title carries it -- so the landing is strengthening its own query, not
+    duplicating a guide.
+    """
+    failures = []
+    phrase = "receipt to pdf"
+    src = open(os.path.join(ROOT, "index.html"), encoding="utf-8").read()
+    print("check: the landing page speaks its own query (%r)" % phrase)
+
+    def has(pattern, what):
+        m = re.search(pattern, src, re.S | re.I)
+        ok = bool(m) and phrase in re.sub(r"\s+", " ", m.group(1)).lower()
+        print("  %-34s : %s" % (what, ok))
+        if not ok:
+            failures.append("index.html: %s does not name %r" % (what, phrase))
+
+    has(r"<title>(.*?)</title>", "title")
+    has(r'<meta name="description" content="(.*?)">', "meta description")
+    has(r'<meta property="og:title" content="(.*?)">', "og:title")
+    has(r'<meta name="twitter:title" content="(.*?)">', "twitter:title")
+    has(r'"@type": "SoftwareApplication".*?"description": "(.*?)"', "JSON-LD app description")
+    # ...and it is visible to a reader, not markup-only. _visible_text keeps <head> text
+    # (the <title> survives tag-stripping), so read only the <body> for this one.
+    body = re.search(r"<body[^>]*>(.*?)</body>", src, re.S | re.I)
+    visible = bool(body) and phrase in _visible_text(body.group(1)).lower()
+    print("  %-34s : %s" % ("visible in the page", visible))
+    if not visible:
+        failures.append("index.html: %r is marked up but no reader can see it" % phrase)
+    # one owner: no other page title claims the phrase
+    for page in _html_files():
+        if page == "index.html":
+            continue
+        t = re.search(r"<title>(.*?)</title>", open(os.path.join(ROOT, page),
+                                                   encoding="utf-8").read(), re.S | re.I)
+        if t and phrase in t.group(1).lower():
+            print("  %-34s : False" % page)
+            failures.append("%s claims the landing page's query %r" % (page, phrase))
+    print("  %-34s : %s" % ("owned by the landing alone", not failures))
+    return failures
+
+
 def _public_pages():
     """Every HTML page in sitemap.xml -- the pages a crawler is meant to find."""
     html = open(os.path.join(ROOT, "sitemap.xml"), encoding="utf-8").read()
@@ -932,6 +982,7 @@ def main():
     failures += check_cited_page_hmrc()
     failures += check_sitemap_covers_pages()
     failures += check_faq_markup_matches_page()
+    failures += check_landing_owns_its_query()
     failures += check_wayback_references()
     failures += check_no_external_subresources()
     failures += check_og_card()
