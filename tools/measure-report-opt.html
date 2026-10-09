@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Measure — additive opts.report on buildPdf | ReceiptStack (dev)</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Development harness: measures whether the additive opts.report opt changes the existing buildPdf call path. Not a product page.">
+<link rel="canonical" href="https://maxhemmerich.github.io/receipts-to-pdf/tools/measure-report-opt.html">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<main class="wrap">
+  <h1>Measure — additive <code>opts.report</code></h1>
+  <p class="lede">Dev harness for <code>NEXT.md</code> item 8. It loads
+  <code>../assets/app.js</code>, freezes the clock, and builds the same input
+  three ways: the shipping call, the same call again, and the shipping call with
+  <code>opts.report</code>. Not linked from the site; nothing is for sale here.</p>
+  <p><span id="status" class="status"></span></p>
+  <pre id="log" class="dim"></pre>
+  <div id="out"></div>
+
+  <!-- the elements app.js's init() binds to, so the real engine loads clean -->
+  <div hidden>
+    <div id="drop"></div>
+    <input type="file" id="picker" multiple accept="image/*">
+    <button type="button" id="chooseBtn"></button>
+    <button type="button" id="sampleBtn"></button>
+    <button type="button" id="buildBtn"></button>
+    <input type="text" id="title" value="Receipts">
+    <select id="pageSize"><option value="letter">Letter</option></select>
+    <p id="capNote" hidden></p>
+    <p id="limitLine" hidden></p>
+    <div id="buySlot"></div>
+    <p id="buyNote"></p>
+    <div id="unlockRow" hidden></div>
+    <p id="result" hidden></p>
+  </div>
+
+  <script src="../assets/vendor/pdf-lib.min.js"></script>
+  <script src="../config.js"></script>
+  <script src="../assets/app.js"></script>
+  <script src="measure-report-opt.js"></script>
+</body>
+</html>

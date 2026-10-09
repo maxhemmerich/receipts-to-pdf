@@ -196,6 +196,7 @@ h1 {
 }
 .row input[type="date"] { font-family: var(--mono); font-size: 12px; flex: 0 0 118px; }
 .row .note-in { flex: 1 1 auto; }
+.row .cat-in  { flex: 0 0 104px; }
 .row .amt-in  { flex: 0 0 74px; text-align: right; font-family: var(--mono); }
 
 .row .date-guess {

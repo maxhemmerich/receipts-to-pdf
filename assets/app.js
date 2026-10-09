@@ -195,6 +195,22 @@ function csvFor(items) {
   }).join('\r\n') + '\r\n';
 }
 
+/* ------------------------------------------------- report categories
+   Groups the items for the expense-report cover sheet, in first-appearance
+   order, with a per-category subtotal. A row with no category lands in one
+   'Uncategorised' group. Only used when opts.report is passed. */
+function reportGroups(items) {
+  var order = [], map = {};
+  items.forEach(function (it) {
+    var c = String(it.category === undefined || it.category === null ? '' : it.category).trim() || 'Uncategorised';
+    if (!map[c]) { map[c] = { cat: c, rows: [], sub: 0 }; order.push(c); }
+    map[c].rows.push(it);
+    var n = amountOf(it);
+    if (n !== null) map[c].sub += n;
+  });
+  return order.map(function (c) { return map[c]; });
+}
+
 /* ------------------------------------------------------------- image work */
 
 function loadImg(src) {
@@ -256,6 +272,10 @@ function buildPdf(items, opts) {
   var created = new Date();
   var unlocked = !!opts.unlocked;
   var mark = !unlocked;
+  /* ADDITIVE (NEXT.md #8). Absent -> this is null and every line below draws
+     exactly what it drew before; present -> one expense-report cover sheet is
+     inserted as page 1 and nothing else moves. */
+  var report = (opts && opts.report) ? opts.report : null;
 
   return PDFLib.PDFDocument.create().then(function (d) {
     doc = d;
@@ -363,6 +383,95 @@ function buildPdf(items, opts) {
 
     at('Every receipt is on its own page after this one, in the order listed.', M, M + FOOT + 8, font, 8.5, GREY);
 
+    /* ---- optional expense-report cover sheet (NEXT.md #8) ----
+       Only ever drawn when opts.report was passed. It reuses this document's
+       own embedded fonts, page size, margin and type scale, and is inserted as
+       page 1, ahead of the index page drawn above — so with no `report` opt
+       nothing here runs and the bytes are exactly what they were. */
+    function drawReportCover() {
+      var pg = doc.insertPage(0, [PW, PH]);
+      var top2 = PH - M, yy = top2;
+      var cDate = M + 18, cCat = M + 86, cNote = M + 186, cAmt = PW - M;
+      var pf = String(report.preparedFor === undefined || report.preparedFor === null ? '' : report.preparedFor).trim();
+
+      function line(y2, col, thick, x, width) {
+        pg.drawRectangle({ x: (x === undefined ? M : x), y: y2,
+          width: (width === undefined ? PW - 2 * M : width),
+          height: thick || 0.7, color: rgb(col || RULE) });
+      }
+      function at2(text, x, y2, f, size, col) {
+        pg.drawText(clean(text), { x: x, y: y2, size: size, font: f || font, color: rgb(col || INK) });
+      }
+      function atRight2(text, xr, y2, f, size, col) {
+        var t = clean(text);
+        pg.drawText(t, { x: xr - (f || font).widthOfTextAtSize(t, size), y: y2, size: size, font: f || font, color: rgb(col || INK) });
+      }
+
+      yy = top2 - 8;
+      at2('ReceiptStack', M, yy, bold, 9, GREY);
+      atRight2(created.toISOString().slice(0, 10), PW - M, yy, font, 9, GREY);
+      yy -= 26;
+      at2(fit(opts.title || 'Receipts', bold, 24, PW - 2 * M), M, yy, bold, 24);
+      yy -= 20;
+      var sub = 'Prepared for ' + (pf || '-') + '  \u00b7  ' + period + '  \u00b7  ' +
+                items.length + (items.length === 1 ? ' expense' : ' expenses');
+      at2(fit(sub, font, 10.5, PW - 2 * M), M, yy, font, 10.5, GREY);
+      yy -= 22;
+      line(yy, INK, 1.2);
+      yy -= 22;
+
+      at2('Date', cDate, yy, bold, 8, GREY);
+      at2('Category', cCat, yy, bold, 8, GREY);
+      at2('Note', cNote, yy, bold, 8, GREY);
+      atRight2('Amount', cAmt, yy, bold, 8, GREY);
+      line(yy - 6, RULE, 0.7);
+      yy -= 24;
+
+      var rowH2 = 16, groups = reportGroups(items), floorY2 = M + 150, spilled = 0;
+
+      groups.forEach(function (g) {
+        g.rows.forEach(function (it) {
+          if (yy < floorY2) { spilled++; return; }
+          at2(it.date || '-', cDate, yy, font, 10, it.date ? INK : GREY);
+          at2(fit(g.cat, font, 10, cNote - cCat - 8), cCat, yy, font, 10);
+          at2(fit(it.note || '', font, 10, cAmt - cNote - 8), cNote, yy, font, 10);
+          var n = amountOf(it);
+          atRight2(n === null ? '-' : money(n), cAmt, yy, font, 10);
+          yy -= rowH2;
+        });
+        if (spilled) return;
+        yy -= 2;
+        at2('Subtotal \u00b7 ' + g.cat, cCat, yy, bold, 9, GREY);
+        atRight2(money(g.sub), cAmt, yy, bold, 9);
+        yy -= 8;
+        line(yy, RULE, 0.5, cCat, cAmt - cCat);
+        yy -= 12;
+      });
+
+      if (spilled) {
+        at2(spilled + ' row' + (spilled === 1 ? '' : 's') + ' did not fit on this page', cCat, yy, font, 9, GREY);
+        yy -= rowH2;
+      }
+
+      yy -= 2;
+      line(yy + 12, INK, 1);
+      at2(label, cNote, yy, bold, 10);
+      if (entered === 0) atRight2('no amounts entered', cAmt, yy, font, 9.5, GREY);
+      else atRight2(money(total), cAmt, yy, bold, 11);
+
+      var sigY = M + 96, sigW = 210, gap = 26;
+      [
+        { x: M, lbl: 'Signature' },
+        { x: M + sigW + gap, w: 130, lbl: 'Date' },
+        { x: M + sigW + gap + 156, w: PW - M - (M + sigW + gap + 156), lbl: 'Approved by (name)' }
+      ].forEach(function (sg) {
+        line(sigY, RULE, 0.7, sg.x, sg.w === undefined ? sigW : sg.w);
+        at2(sg.lbl, sg.x, sigY - 12, font, 8.5, GREY);
+      });
+
+      at2('Every receipt is on its own page after this one, in the order listed.', M, M + FOOT + 8, font, 8.5, GREY);
+    }
+
     /* ---- one page per receipt ---- */
     var iw = PW - 2 * M, ih = PH - M - FOOT - M - 10;
 
@@ -392,6 +501,7 @@ function buildPdf(items, opts) {
         }
       });
     }, Promise.resolve()).then(function () {
+      if (report) drawReportCover();
       return doc.save({ useObjectStreams: false });
     }).then(function (out) {
       return { bytes: out, pages: doc.getPageCount() };
@@ -543,6 +653,13 @@ function renderList() {
     note.addEventListener('input', function () { it.note = note.value; });
     inputs.appendChild(note);
 
+    var cat = document.createElement('input');
+    cat.type = 'text'; cat.className = 'cat-in'; cat.placeholder = 'Category';
+    cat.value = it.category || ''; cat.maxLength = 40;
+    cat.title = 'Category, used by the expense-report cover sheet';
+    cat.addEventListener('input', function () { it.category = cat.value; });
+    inputs.appendChild(cat);
+
     var acts = document.createElement('div');
     acts.className = 'acts';
     [['\u25B2', 'up', -1], ['\u25BC', 'down', 1]].forEach(function (spec) {
@@ -649,6 +766,7 @@ function addImage(img, name, preset) {
     rotation: 0,
     note: preset.note || '',
     amount: preset.amount || '',
+    category: preset.category || '',
     date: date || '',
     dateSource: preset.date ? 'given' : (fromName ? 'name' : 'none'),
     thumb: thumbFor(img),
@@ -727,11 +845,19 @@ function build() {
   setStatus('Building ' + included.length + ' pages\u2026');
 
   var t0 = performance.now();
-  buildPdf(included, {
+  var opts = {
     title: $('title').value || 'Receipts',
     pageSize: $('pageSize').value,
     unlocked: state.unlocked
-  }).then(function (out) {
+  };
+  /* expense-report mode: the SAME engine and the SAME unlock, one extra opt.
+     It changes only what page 1 looks like — the free cap and the footer mark
+     are applied by the lines above, before this, and are untouched here. */
+  var modeEl = $('mode');
+  if (modeEl && modeEl.value === 'report') {
+    opts.report = { preparedFor: ($('preparedFor') ? $('preparedFor').value.trim() : '') };
+  }
+  buildPdf(included, opts).then(function (out) {
     var blob = new Blob([out.bytes], { type: 'application/pdf' });
     if (lastPdfUrl) URL.revokeObjectURL(lastPdfUrl);
     lastPdfBlob = blob;
@@ -825,6 +951,14 @@ function init() {
   $('sampleBtn').addEventListener('click', loadSamples);
   $('buildBtn').addEventListener('click', build);
 
+  /* Mode: the expense-report cover sheet is a mode on the SAME engine and the
+     SAME unlock — never a second product. It reveals the "Prepared for" field
+     and lets build() pass opts.report; the free 5-receipt cap and the footer
+     mark are applied elsewhere and are untouched by it. */
+  var modeEl = $('mode'), preparedField = $('preparedField');
+  function syncMode() { if (preparedField) preparedField.hidden = !(modeEl && modeEl.value === 'report'); }
+  if (modeEl) { modeEl.addEventListener('change', syncMode); syncMode(); }
+
   // price + checkout slot. Empty config -> honest disabled button; a filled
   // CHECKOUT_URL -> a real buy link. The DELTA pattern, in this project.
   var priceEls = document.querySelectorAll('[data-price]');
@@ -869,7 +1003,7 @@ function init() {
 window.RS = {
   buildPdf: buildPdf, parseDateFromName: parseDateFromName, normalizeImage: normalizeImage,
   clean: clean, state: state, addFiles: addFiles, loadSamples: loadSamples, build: build,
-  sortByDate: sortByDate, csvFor: csvFor,
+  sortByDate: sortByDate, csvFor: csvFor, reportGroups: reportGroups,
   get lastBlob() { return lastPdfBlob; },
   get lastCsvText() { return lastCsvText; }
 };

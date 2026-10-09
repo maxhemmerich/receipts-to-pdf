@@ -156,6 +156,17 @@
             <option value="a4">A4</option>
           </select>
         </label>
+        <label class="field">
+          <span>Mode</span>
+          <select id="mode">
+            <option value="receipts">Receipts index</option>
+            <option value="report">Expense report</option>
+          </select>
+        </label>
+        <label class="field" id="preparedField" hidden>
+          <span>Prepared for</span>
+          <input type="text" id="preparedFor" maxlength="60" placeholder="Name or company">
+        </label>
         <button type="button" class="primary" id="buildBtn">Build the PDF</button>
       </div>
 
@@ -178,6 +189,8 @@
       <dd>Which receipt it is (3 of 7), its date and its amount, so pages survive being printed and shuffled.</dd>
       <dt>Size you can email</dt>
       <dd>Photos are resized to 2200 pixels on the long edge, so a stack of receipts stays a few megabytes.</dd>
+      <dt>Expense-report mode</dt>
+      <dd>Switch page 1 from the receipt index to a cover sheet: the period, a subtotal for each category you type on a row, the total, and a signature block. The receipts stay one per page behind it. It is a mode on the same file, not a second product &mdash; the free 5-receipt limit and the footer mark are unchanged.</dd>
     </dl>
   </section>
 
