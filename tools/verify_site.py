@@ -46,6 +46,10 @@ GUIDES = [
     "scan-receipts-to-pdf-on-a-phone.html",
 ]
 NEW_PAGE = "scan-receipts-to-pdf-on-a-phone.html"
+# The flagship guide — the tool's own phrase, "combine receipt photos into one PDF". It now also
+# answers where that query goes next (what the file is, and how to send it) and restates the two
+# samples' counts, so its numbers ride the same byte-for-byte guard as the landing page's.
+GUIDE_SAMPLES = "combine-receipt-photos-into-one-pdf.html"
 # The cited guide: answers "how long do I have to keep receipts?" by quoting the CRA. It must name
 # each source URL and print the sentences verbatim, so a rewrite cannot quietly drop or alter a quote.
 CRA_PAGE = "how-long-to-keep-receipts.html"
@@ -285,6 +289,28 @@ def check_free_mark_carries_address():
         print("  paid sample leaks it : %d page(s)" % leak)
         if leak:
             failures.append("the paid sample carries the free mark's address on %d page(s)" % leak)
+    return failures
+
+
+def check_guide_sample_counts():
+    """The flagship guide restates the samples' counts; they must match the files byte for byte.
+
+    NEXT.md #21: the guide that answers the tool's own phrase ("combine receipt photos into one
+    PDF") now also answers where the query goes next -- what the finished file is and how to send
+    it -- by naming both sample PDFs and their real receipt/page/KB/byte counts. Those are the same
+    numbers the landing page prints, so they ride the same guard: it reads the counts out of the
+    guide and compares them to the files, and it fails if the guide stops linking the samples at
+    all. A rebuild or a re-typed label in the guide fails here instead of drifting.
+    """
+    print("check: the guide's stated sample counts match the files")
+    failures = []
+    html = open(os.path.join(ROOT, GUIDE_SAMPLES), encoding="utf-8").read()
+    named = set(href for href, _ in parse_labels(html))
+    for href in ("downloads/receipts-sample-free.pdf", "downloads/receipts-sample.pdf"):
+        if href not in named:
+            failures.append("%s no longer names %s (the guide must show both builds)"
+                            % (GUIDE_SAMPLES, href))
+    failures += check_sample_labels(os.path.join(ROOT, GUIDE_SAMPLES), ROOT, served=False)
     return failures
 
 
@@ -785,6 +811,7 @@ def main():
 
     failures = []
     failures += check_sample_labels(a.page, ROOT, served=False)
+    failures += check_guide_sample_counts()
     failures += check_free_mark_carries_address()
     failures += check_new_page_indexable()
     failures += check_new_page_linked()
@@ -799,6 +826,7 @@ def main():
         fetch = make_fetcher()
         failures += check_served_page_matches_tree(a.page, fetch)
         failures += check_served_new_page(fetch)
+        failures += check_served_page(fetch, GUIDE_SAMPLES)
         failures += check_served_page(fetch, CRA_PAGE)
         failures += check_served_page(fetch, IRS_PAGE)
         failures += check_sample_labels(a.page, ROOT, served=True, fetch=fetch)
