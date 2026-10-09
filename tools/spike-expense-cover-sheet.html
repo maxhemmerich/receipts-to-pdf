@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spike — expense-report cover sheet from buildPdf | ReceiptStack (dev)</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Development harness: proves the ReceiptStack PDF engine can lay out an expense-report cover sheet from a hand-made item list. Not a product page.">
+<link rel="canonical" href="https://maxhemmerich.github.io/receipts-to-pdf/tools/spike-expense-cover-sheet.html">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<main class="wrap">
+  <h1>Spike — expense-report cover sheet</h1>
+  <p class="lede">Development harness for <code>NEXT.md</code> item 8. It loads
+  <code>../assets/app.js</code> unchanged and renders a cover sheet from the same
+  <code>buildPdf</code> code path, onto a hand-made item list. Not linked from the
+  site; not a product page; nothing is for sale here.</p>
+
+  <p><button type="button" id="runBtn">Render the spike</button> <span id="status" class="status"></span></p>
+  <pre id="log" class="dim"></pre>
+  <div id="out"></div>
+
+  <!-- the elements app.js's init() binds to, so the real engine loads with no errors -->
+  <div hidden>
+    <div id="drop"></div>
+    <input type="file" id="picker" multiple accept="image/*">
+    <button type="button" id="chooseBtn"></button>
+    <button type="button" id="sampleBtn"></button>
+    <button type="button" id="buildBtn"></button>
+    <p id="capNote" hidden></p>
+    <p id="limitLine" hidden></p>
+  </div>
+
+  <script src="../assets/vendor/pdf-lib.min.js"></script>
+  <script src="../config.js"></script>
+  <script src="../assets/app.js"></script>
+  <script src="spike-expense-cover-sheet.js"></script>
+</body>
+</html>
