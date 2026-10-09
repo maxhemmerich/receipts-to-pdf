@@ -172,6 +172,22 @@ def _record(key, refs, ts, sc, target, note=None):
     print("  [done] %s  -> %s (%s)%s" % (key, ts, sc, ("  " + note) if note else ""))
 
 
+def _record_newer(key, refs, ts, sc, target, note=None):
+    """Record a capture unless the record already holds one with a LATER timestamp.
+
+    The bare URL and its '?v=1' variant can hold different revisions, and the CDX index for the
+    bare URL may only know the OLDER one -- so a plain save, and above all a --verify (which is
+    meant to change nothing), must never let an older capture overwrite a newer entry. Returns
+    True if the entry was written.
+    """
+    existing = refs.get(key)
+    if existing and existing.get("timestamp") and ts <= existing["timestamp"]:
+        print("  [keep] %s  (record already holds the newer %s)" % (key, existing["timestamp"]))
+        return False
+    _record(key, refs, ts, sc, target, note)
+    return True
+
+
 def archive_one(url, refs, save=True, refresh=False):
     """Ensure `url` has a 200 capture; return a status string.
 
@@ -185,7 +201,7 @@ def archive_one(url, refs, save=True, refresh=False):
     prev = cdx_latest(url)  # the capture that exists right now, if any
     if prev and not refresh:
         ts, sc = prev
-        _record(url, refs, ts, sc, url)
+        _record_newer(url, refs, ts, sc, url)
         return "have"
 
     if not save:
@@ -194,7 +210,7 @@ def archive_one(url, refs, save=True, refresh=False):
         if v:
             ts, sc = v
             note = None if prev else "captured under '?v=1' (same static bytes)"
-            _record(url, refs, ts, sc, url if prev else url + "?v=1", note)
+            _record_newer(url, refs, ts, sc, url if prev else url + "?v=1", note)
             return "have"
         print("  [none] %s  (no 200 capture)" % url)
         return "none"
@@ -203,7 +219,12 @@ def archive_one(url, refs, save=True, refresh=False):
     # "not archived" page and never fetches the origin. A '?v=1' variant is the same static
     # bytes under a different key, so it is a faithful fallback -- and it is recorded with a
     # note, so the record never pretends the snapshot was taken at the bare URL.
-    want_newer_than = prev[0] if (refresh and prev) else None
+    # A refresh only counts when it yields a capture newer than EVERY capture already on record:
+    # the bare-URL CDX, and the recorded entry itself (which may be a NEWER '?v=1' capture, so
+    # comparing against the bare URL alone would let a refresh silently downgrade the record).
+    known = [t for t in ((prev[0] if prev else None),
+                         (refs.get(url) or {}).get("timestamp")) if t]
+    want_newer_than = max(known) if (refresh and known) else None
     variants = ((url, None), (url + "?v=1", "captured under '?v=1' (same static bytes)"))
     for target, note in variants:
         for _ in range(3):
@@ -217,13 +238,14 @@ def archive_one(url, refs, save=True, refresh=False):
                 have = cdx_latest(target)
                 if have and (want_newer_than is None or have[0] > want_newer_than):
                     ts, sc = have
-                    _record(url, refs, ts, sc, target, note)
+                    _record_newer(url, refs, ts, sc, target, note)
                     return "saved"
             break
     if prev:
         ts, sc = prev
-        _record(url, refs, ts, sc, url)
-        print("  [STALE] %s  (refresh did not take; the record still points at %s)" % (url, ts))
+        _record_newer(url, refs, ts, sc, url)
+        print("  [STALE] %s  (refresh did not take; the record still points at %s)"
+              % (url, refs[url]["timestamp"]))
         return "stale"
     print("  [FAIL] %s  (no 200 capture yet)" % url)
     return "fail"
