@@ -21,6 +21,7 @@ reviewer finding it.
 """
 import argparse
 import hashlib
+import html
 import json
 import os
 import re
@@ -395,6 +396,61 @@ def check_sitemap_covers_pages():
     return failures
 
 
+def _visible_text(html_src):
+    """The reader-visible text of a page: script/style blocks dropped, entities decoded,
+    tags stripped, whitespace collapsed. Proves markup only describes what a reader sees."""
+    h = re.sub(r"<script.*?</script>", " ", html_src, flags=re.S)
+    h = re.sub(r"<style.*?</style>", " ", h, flags=re.S)
+    h = html.unescape(h)
+    h = re.sub(r"<[^>]+>", " ", h)
+    return re.sub(r"\s+", " ", h).strip()
+
+
+def check_faq_markup_matches_page():
+    """Every FAQPage in a page's JSON-LD must describe content a reader can actually see.
+
+    Google's structured-data guidelines require marked-up FAQ content to be visible on the
+    page, and a FAQPage's @id must point at something real. A landing page that marks up a
+    six-question FAQ no reader can see is markup for invisible content, and its @id fragment
+    404s. This asserts, per public page: (1) the FAQPage @id fragment resolves to an element
+    id on the page, and (2) every Question name appears in the page's visible text.
+
+    It is deliberately about the questions, not the answers: the two cited pages print their
+    answers as prose that quotes a sentence fetched at build time, so an answer is not a
+    fixed string there and a string compare would be a false failure.
+    """
+    failures = []
+    print("check: every FAQPage describes visible content (question names + resolvable @id)")
+    for page in _html_files():
+        html_src = open(os.path.join(ROOT, page), encoding="utf-8").read()
+        m = re.search(r'<script type="application/ld\+json">(.*?)</script>', html_src, re.S)
+        if not m:
+            continue
+        try:
+            data = json.loads(m.group(1))
+        except ValueError as e:
+            failures.append("%s: JSON-LD does not parse (%s)" % (page, e))
+            continue
+        graph = data.get("@graph", [data])
+        faq = next((n for n in graph if n.get("@type") == "FAQPage"), None)
+        if faq is None:
+            continue
+        vis = _visible_text(html_src)
+        names = [q.get("name", "") for q in faq.get("mainEntity", [])]
+        missing = [n for n in names if re.sub(r"\s+", " ", html.unescape(n)).strip() not in vis]
+        frag = (faq.get("@id") or "").split("#")[-1]
+        frag_ok = (not frag) or ('id="%s"' % frag) in html_src
+        ok = (not missing) and frag_ok
+        print("  %-46s : %s (questions=%d, #%s resolves=%s)"
+              % (page, "ok" if ok else "FAIL", len(names), frag, frag_ok))
+        if missing:
+            failures.append("%s: FAQPage marks up a question no reader can see: %r"
+                            % (page, missing[0]))
+        if not frag_ok:
+            failures.append("%s: FAQPage @id #%s does not resolve to an element" % (page, frag))
+    return failures
+
+
 def _public_pages():
     """Every HTML page in sitemap.xml -- the pages a crawler is meant to find."""
     html = open(os.path.join(ROOT, "sitemap.xml"), encoding="utf-8").read()
@@ -683,6 +739,7 @@ def main():
     failures += check_cited_page()
     failures += check_cited_page_irs()
     failures += check_sitemap_covers_pages()
+    failures += check_faq_markup_matches_page()
     failures += check_wayback_references()
     failures += check_no_external_subresources()
     failures += check_og_card()

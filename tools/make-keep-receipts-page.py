@@ -289,7 +289,7 @@ TEMPLATE = r'''<!DOCTYPE html>
     one you type.</p>
   </section>
 
-  <section class="block">
+  <section class="block" id="faq">
     <h2>Questions</h2>
     <dl class="facts">
       <dt>How long do I have to keep receipts in Canada?</dt>
@@ -397,10 +397,18 @@ IRS_TEMPLATE = r'''<!DOCTYPE html>
         },
         {
           "@type": "Question",
-          "name": "Is the US period the same as the Canadian six-year rule?",
+          "name": "Is that the same as the Canadian six-year rule?",
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "No. They are different jurisdictions with different rules. The Canada Revenue Agency's six-year rule is quoted on its own page; the Internal Revenue Service's periods are quoted on this one. Neither figure substitutes for the other."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What if I never filed a return?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Keep records indefinitely if you do not file a return."
           }
         },
         {
@@ -520,7 +528,7 @@ IRS_TEMPLATE = r'''<!DOCTYPE html>
     one you type.</p>
   </section>
 
-  <section class="block">
+  <section class="block" id="faq">
     <h2>Questions</h2>
     <dl class="facts">
       <dt>How long should I keep records in the United States?</dt>

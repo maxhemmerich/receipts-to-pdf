@@ -94,6 +94,17 @@ must be linked from the landing page and from a sibling guide. Every one of thes
 by mutating the real file (drop the sitemap entry, unlink the page, point `og:image` at a missing card,
 widen the card, add an external script, drop the canonical) and green on the real tree.
 
+It also asserts, per page, that every `FAQPage` in the page's JSON-LD describes content a reader can
+actually see: the `@id` fragment must resolve to an element id on the page, and every marked-up
+`Question` name must appear in the page's visible text. The landing page carried a six-question
+`FAQPage` that was nowhere on the page and no `#faq` anchor, so its structured data described invisible
+content and the fragment 404'd; the landing now shows a **Questions** section mirroring that JSON-LD
+word for word, every page carries the `#faq` anchor its schema names, and the IRS page's one drifted
+question name is aligned to the question the reader sees. Proven red by renaming a marked-up question,
+deleting the visible section, dropping an anchor, and renaming the IRS question; green on the real
+tree. The guard compares question names, not answers: the cited pages print their answers as prose that
+quotes a sentence fetched at build time, so an answer is not a fixed string there.
+
 It also asserts that every public page carries a Wayback snapshot: `discovery/wayback-references.json`
 must cover every `<loc>` that is a page, and each entry must point at a real `web.archive.org` snapshot
 whose 14-digit timestamp matches the recorded one and whose status is 200. Proven red by removing a

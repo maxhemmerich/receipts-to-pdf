@@ -109,6 +109,7 @@
     <a href="#sample">Sample output</a>
     <a href="combine-receipt-photos-into-one-pdf.html">Guide</a>
     <a href="#privacy">Privacy</a>
+    <a href="#faq">Questions</a>
     <a href="#price">Price</a>
   </nav>
 </header>
@@ -237,6 +238,25 @@
     <p>There is no upload. There is no server that could receive your files. The page ships a content-security policy that blocks every network request, so it cannot send your pictures anywhere even if a bug tried to. The PDF is assembled by the JavaScript already running in this tab.</p>
     <p>You can check all of that: the full source is on <a href="https://github.com/maxhemmerich/receipts-to-pdf">GitHub</a>, and the same policy line is visible in the page source.</p>
     <p class="dim">Receipts carry your card number, your address and what you buy. That is why this one does not have a server.</p>
+  </section>
+
+  <!-- questions: the visible copy of the FAQPage block in the head, word for word -->
+  <section class="block" id="faq">
+    <h2>Questions</h2>
+    <dl class="facts">
+      <dt>Do my receipt photos get uploaded anywhere?</dt>
+      <dd>There is no upload. There is no server that could receive your files.</dd>
+      <dt>Do I need an account or anything installed?</dt>
+      <dd>No install, no account.</dd>
+      <dt>What ends up in the PDF?</dt>
+      <dd>Every receipt listed in date order with its amount, then a total for the whole batch.</dd>
+      <dt>How does a receipt get its date?</dt>
+      <dd>Dates read from the filename when they are in there</dd>
+      <dt>Which image formats can I drop in?</dt>
+      <dd>JPG, PNG, WebP, GIF</dd>
+      <dt>Will a whole year still be small enough to email?</dt>
+      <dd>Photos are resized to 2200 pixels on the long edge, so a stack of receipts stays a few megabytes.</dd>
+    </dl>
   </section>
 
   <!-- price -->
